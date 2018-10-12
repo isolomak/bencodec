@@ -39,5 +39,4 @@ describe('#decode', () => {
     it('should decode object', function () {
         assert.deepStrictEqual({ bar: 'spam', foo: 42 }, bencodec.decode('d3:bar4:spam3:fooi42ee', true));
     });
-
 });

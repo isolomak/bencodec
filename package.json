@@ -17,7 +17,7 @@
     "torrent"
   ],
   "author": "isolomak",
-  "license": "GPL-3.0",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/IvanSolomakhin/bencodec/issues"
   },
