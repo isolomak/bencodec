@@ -1,0 +1,28 @@
+{
+  "name": "bencodec",
+  "version": "1.0.0",
+  "description": "Fast and easy to use bencode codec.",
+  "main": "bencodec.js",
+  "scripts": {
+    "test": "mocha tests/bencodec.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IvanSolomakhin/bencodec.git"
+  },
+  "keywords": [
+    "bencode",
+    "codec",
+    "bittorrent",
+    "torrent"
+  ],
+  "author": "isolomak",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/IvanSolomakhin/bencodec/issues"
+  },
+  "homepage": "https://github.com/IvanSolomakhin/bencodec#readme",
+  "devDependencies": {
+    "mocha": "^5.2.0"
+  }
+}
