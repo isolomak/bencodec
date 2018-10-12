@@ -3,6 +3,15 @@
 /**
  * Class representing decoder
  * @class
+ * @example
+ * // decode number
+ * const decoded = new Decoder('i42e').decode();
+ * // decode string
+ * const decoded = new Decoder('4:spam').decode();
+ * // decode Array
+ * const decoded = new Decoder('l4:spami42ee').decode();
+ * // decode Object
+ * const decoded = new Decoder('d3:bar4:spam3:fooi42ee').decode();
  */
 class Decoder {
     /**
@@ -128,15 +137,5 @@ class Decoder {
         }
     }
 }
-
-const tests = () => {
-    const decode = (data) => new Decoder(data).decode();
-    console.log('Decode:');
-    console.log(' - int_decode_res:', decode('i42e'));
-    console.log(' - str_decode_res:', decode('4:spam'));
-    console.log(' - lst_decode_res:', decode('l4:spami42ee'));
-    console.log(' - dct_decode_res:', decode('d3:bar4:spam3:fooi42ee'));
-};
-// tests();
 
 module.exports = (data, stringify) => new Decoder(data, stringify).decode();

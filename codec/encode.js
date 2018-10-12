@@ -39,16 +39,14 @@ const encodeDictionary = (object) => 'd' + Object
  * @description Encode data
  * @param {string|number|Array|Object} data Data to encode.
  * @returns {Buffer}
+ * @methodOf module:bencodec
  * @example
  * // encode number
  * const encoded = encode(42);
- * @example
  * // encode string
  * const encoded = encode('spam');
- * @example
  * // encode Array
  * const encoded = encode(['spam', 42]);
- * @example
  * // encode Object
  * const encoded = encode({ bar: 'spam', foo: 42 });
  */
@@ -70,18 +68,4 @@ const encode = (data) => {
     return Buffer.from(result, 'ascii');
 };
 
-
-const tests = () => {
-    console.log('Encode:');
-    console.log(' - int_encode_res:', encode(42));
-    console.log(' - str_encode_res:', encode('spam'));
-    console.log(' - lst_encode_res:', encode(['spam', 42]));
-    console.log(' - dct_encode_res:', encode({ bar: 'spam', foo: 42 }));
-};
-
-/**
- * Encode data
- * @memberOf module:bencodec
- // * @type {function((string|number|Array|Object)): Buffer}
- */
 module.exports = encode;
