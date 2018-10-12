@@ -2,7 +2,9 @@
   Bencode codec. Fast, easy to use, without dependencies.
 
 ## Installation
+  ```
   npm install bencodec --save
+  ```
   
 ## Usage
   ```js
@@ -29,5 +31,6 @@
   
 
 ## Tests
-
+  ```
   npm test
+  ```
