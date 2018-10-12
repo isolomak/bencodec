@@ -9,14 +9,8 @@
 ## Usage
   ```js
   const bencodec = require('bencodec');  
-  
-  // decode number  
-  const encoded = bencodec.decode('i42e');  
-  // decode string  
-  const decoded = bencodec.decode('4:spam');  
-  // decode Array  
-  const decoded = bencodec.decode('l4:spami42ee');  
-  // decode Object  
+    
+  // decode example  
   const decoded = bencodec.decode('d3:bar4:spam3:fooi42ee');  
   
   // encode number  
