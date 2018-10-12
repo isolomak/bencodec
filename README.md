@@ -5,7 +5,7 @@
   npm install bencodec --save
   
 ## Usage
-
+  ```js
   const bencodec = require('bencodec');  
   
   // decode number  
@@ -25,7 +25,7 @@
   const encoded = bencodec.encode(['spam', 42]);  
   // encode Object  
   const encoded = bencodec.encode({ bar: 'spam', foo: 42 });  
-  
+  ```
   
 
 ## Tests
