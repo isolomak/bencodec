@@ -29,7 +29,7 @@ module.exports = {
      * @description Decode data
      * @method decode
      * @param {Buffer|string} data Data to decode.
-     * @param {boolean} [stringify=false] stringify convert byte array to string?
+     * @param {boolean} [stringify=false] stringify Convert byte array to string?
      * @returns {Buffer|string|number|Array|Object}
      */
     decode: require('./codec/decode')
