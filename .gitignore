@@ -62,4 +62,5 @@ typings/
 .next
 
 #documentation
+js_doc.conf.json
 out/

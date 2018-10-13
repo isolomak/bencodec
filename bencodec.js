@@ -1,18 +1,11 @@
 /**
- * Bencodec
  * @module bencodec
  * @exports bencodec
  * @type {{encode: function, decode: Class}}
  * @example
  * const bencodec = require('bencodec');
  *
- * // decode number
- * const encoded = bencodec.decode('i42e');
- * // decode string
- * const decoded = bencodec.decode('4:spam');
- * // decode Array
- * const decoded = bencodec.decode('l4:spami42ee');
- * // decode Object
+ * // decode example
  * const decoded = bencodec.decode('d3:bar4:spam3:fooi42ee');
  *
  * // encode number
@@ -36,7 +29,7 @@ module.exports = {
      * @description Decode data
      * @method decode
      * @param {Buffer|string} data Data to decode.
-     * @param {boolean|string} [stringify=false] stringify Convert byte array to string?
+     * @param {boolean} [stringify=false] stringify convert byte array to string?
      * @returns {Buffer|string|number|Array|Object}
      */
     decode: require('./codec/decode')
