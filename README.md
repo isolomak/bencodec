@@ -23,6 +23,8 @@
   const encoded = bencodec.encode({ bar: 'spam', foo: 42 });  
   ```
   
+  Check [Wiki](https://github.com/IvanSolomakhin/bencodec/wiki) for more information. 
+  
 
 ## Tests
   ```
