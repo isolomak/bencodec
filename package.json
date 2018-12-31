@@ -12,6 +12,7 @@
   },
   "keywords": [
     "bencode",
+    "bencodec",
     "codec",
     "bittorrent",
     "torrent"
