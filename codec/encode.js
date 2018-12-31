@@ -1,71 +1,134 @@
 'use strict';
 
 /**
- * @description Encode string
- * @param {string} string
- * @returns {string}
+ * Class representing encoder
+ * @class
  */
-const encodeString = (string) => `${string.length}:${string}`;
-
-
-/**
- * @description Encode number
- * @param {number} number
- * @returns {string}
- */
-const encodeNumber = (number) => `i${number}e`;
-
-
-/**
- * @description Encode list
- * @param {Array} array
- * @returns {string}
- */
-const encodeList = (array) => `l${ array.map(item => encode(item)).join('') }e`;
-
-
-/**
- * @description Encode dictionary
- * @param {Object} object
- * @returns {string}
- */
-const encodeDictionary = (object) => 'd' + Object
-    .keys(object)
-    .map(key => `${key.length}:${key}${encode(object[key])}`)
-    .join('') + 'e';
-
-
-/**
- * @description Encode data
- * @param {string|number|Array|Object} data Data to encode.
- * @returns {Buffer}
- * @methodOf module:bencodec
- * @example
- * // encode number
- * const encoded = encode(42);
- * // encode string
- * const encoded = encode('spam');
- * // encode Array
- * const encoded = encode(['spam', 42]);
- * // encode Object
- * const encoded = encode({ bar: 'spam', foo: 42 });
- */
-const encode = (data) => {
-    let result = null;
-
-    if (typeof data === 'string') {
-        result = encodeString(data);
+class Encoder {
+    /**
+     * @constructor
+     * @param {Buffer|String|Array|Object|Number|Boolean} data
+     */
+    constructor(data) {
+        if (!data) {
+            this.result = null;
+            return ;
+        }
+        this.buffers = [];
+        this._encode(data);
+        this.result = Buffer.concat(this.buffers);
     }
-    else if (typeof data === 'number') {
-        result = encodeNumber(data);
-    }
-    else if (Array.isArray(data)) {
-        result = encodeList(data);
-    }
-    else {
-        result = encodeDictionary(data);
-    }
-    return Buffer.from(result, 'ascii');
-};
 
-module.exports = encode;
+
+    /**
+     * @description Encode data
+     * @param {Buffer|String|Array|Object|Number|Boolean} data Data to encode.
+     * @returns {Buffer}
+     * @methodOf module:bencodec
+     * @example
+     */
+    _encode(data) {
+        if (!data) {
+            return ;
+        }
+
+        if (Buffer.isBuffer(data)) {
+            this._encodeBuffer(data);
+        }
+        else if (Array.isArray(data)) {
+            this._encodeArray(data);
+        }
+        else if (typeof data === 'string') {
+            this._encodeString(data);
+        }
+        else if (typeof data === 'number') {
+            this._encodeNumber(data);
+        }
+        else if (typeof data === 'boolean') {
+            this._encodeBoolean(data);
+        }
+        else {
+            this._encodeObject(data);
+        }
+    }
+
+
+    /**
+     * @description Encode buffer
+     * @param {Buffer} data
+     */
+    _encodeBuffer(data) {
+        this.buffers.push(Buffer.from(data.length + ':'), data);
+    }
+
+
+    /**
+     * @description Encode array
+     * @param {Array} data
+     */
+    _encodeArray(data) {
+        this.buffers.push(Buffer.from('l'));
+        for (let i = 0; i < data.length; i++) {
+            this._encode(data[i]);
+        }
+        this.buffers.push(Buffer.from('e'));
+    }
+
+
+    /**
+     * @description Encode string
+     * @param {String} data
+     */
+    _encodeString(data) {
+        this.buffers.push(Buffer.from(Buffer.byteLength(data) + ':' + data));
+    }
+
+
+    /**
+     * @description Encode number
+     * @param {Number} data
+     */
+    _encodeNumber(data) {
+        if (Number(data) === data && data % 1 !== 0) {
+            console.warn(`Warning: float detected, float [ ${data} ] was converted to integer [ ${parseInt(data)} ]`);
+            data = parseInt(data);
+        }
+
+        this.buffers.push(Buffer.from('i' + data + 'e'));
+    }
+
+
+    /**
+     * @description Encode boolean
+     * @param {Boolean} data
+     */
+    _encodeBoolean(data) {
+        if (data === true) {
+            this._encodeNumber(1);
+        }
+        else {
+            this._encodeNumber(0);
+        }
+    }
+
+
+    /**
+     * @description Encode object
+     * @param {Object} data
+     */
+    _encodeObject(data) {
+        const keys = Object.keys(data).sort();
+        this.buffers.push(Buffer.from('d'));
+
+        for (let i = 0; i < keys.length; i++) {
+            let key = keys[i];
+
+            this._encodeString(key);
+            this._encode(data[key]);
+        }
+
+        this.buffers.push(Buffer.from('e'));
+    }
+}
+
+module.exports = (data) => new Encoder(data).result;
