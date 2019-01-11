@@ -28,7 +28,7 @@ class Encoder {
      * @example
      */
     _encode(data) {
-        if (!data) {
+        if (!data && data !== 0) {
             return ;
         }
 
