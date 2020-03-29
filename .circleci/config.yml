@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/mern-starter
     docker:
-      - image: 13-alpine3.10
+      - image: node:13-alpine3.10
     steps:
       - checkout
       - run:
@@ -20,7 +20,7 @@ jobs:
             - node_modules
   test:
     docker:
-      - image: 13-alpine3.10
+      - image: node:13-alpine3.10
     steps:
       - checkout
       - run:
