@@ -1,9 +1,56 @@
+#version: 2
+#jobs:
+#  build:
+#    working_directory: ~/mern-starter
+#    docker:
+#      - image: circleci/node:13
+#    steps:
+#      - checkout
+#      - run:
+#          name: Update npm
+#          command: 'sudo npm install -g npm@latest'
+#      - restore_cache:
+#          key: dependency-cache-{{ checksum "package-lock.json" }}
+#      - run:
+#          name: Install dependencies
+#          command: npm install
+#      - save_cache:
+#          key: dependency-cache-{{ checksum "package-lock.json" }}
+#          paths:
+#            - node_modules
+#  test:
+#    docker:
+#      - image: circleci/node:13
+#    steps:
+#      - checkout
+#      - run:
+#          name: Test and collect coverage
+#          command: npm test
+#      - store_artifacts:
+#          path: coverage
+#          prefix: coverage
+#
+#workflows:
+#  version: 2
+#  build_and_test:
+#    jobs:
+#      - build
+#      - test:
+#          requires:
+#            - build
+
+
 version: 2.1
+
+defaults: &defaults
+  working_directory: ~/bencodec-repo
+  docker:
+    - image: circleci/node:10.16.3
+
 jobs:
+# Build
   build:
-    working_directory: ~/mern-starter
-    docker:
-      - image: circleci/node:10.16.3
+    <<: *defaults
     steps:
       - checkout
       - run:
@@ -18,6 +65,15 @@ jobs:
           key: dependency-cache-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
+      - persist_to_workspace:
+          root: .
+          paths: .
+# Test
+  test:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/bencodec-repo
       - run:
           name: Test and collect code coverage
           command: npm test --ci
@@ -27,3 +83,13 @@ jobs:
           path: reports/junit
       - store_test_results: # for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
           path: reports/junit
+
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build

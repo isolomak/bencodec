@@ -1,3 +1,6 @@
+[![build](https://circleci.com/gh/IvanSolomakhin/bencodec.svg?style=shield)](https://app.circleci.com/pipelines/github/IvanSolomakhin/bencodec)
+[![codecov](https://codecov.io/gh/IvanSolomakhin/bencodec/branch/master/graph/badge.svg)](https://codecov.io/gh/IvanSolomakhin/bencodec)
+
 ## bencodec
   Bencode codec. Fast, easy to use, without dependencies.
 

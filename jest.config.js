@@ -4,8 +4,8 @@ module.exports = {
     verbose: true,
     collectCoverage: true,
     reporters: [
-        "default",
-        [ "jest-junit", { outputDirectory: "./coverage" } ]
+        'default',
+        [ 'jest-junit', { outputDirectory: './coverage' } ]
     ],
     coverageThreshold: {
         global: {
