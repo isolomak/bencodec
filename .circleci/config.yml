@@ -39,9 +39,9 @@ jobs:
           name: Test and collect code coverage
           command: npm test --ci
       - store_artifacts:
-          path: coverage/junit
+          path: coverage/junit.xml
       - store_test_results: # for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
-          path: coverage/junit
+          path: coverage/junit.xml
       - codecov/upload:
           file: coverage/coverage-final.json
           token: $CODECOV_TOKEN
