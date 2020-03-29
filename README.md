@@ -10,8 +10,8 @@
 
   Fast and easy to use.  
   Written in TypeScript.  
+  Fully tested with 100% code coverage.  
   Without dependencies.  
-  100% test coverage.
   
   
 ## Installation
