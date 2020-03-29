@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="54" failures="0" time="0.782">
+  <testsuite name="Bencode decoder tests" errors="0" failures="0" skipped="0" timestamp="2020-03-29T13:36:39" time="0.543" tests="25">
+    <testcase classname="Bencode decoder tests should throw error if data to decode is not provided" name="Bencode decoder tests should throw error if data to decode is not provided" time="0.007">
+    </testcase>
+    <testcase classname="Bencode decoder tests should throw error if invalid data to decode is provided" name="Bencode decoder tests should throw error if invalid data to decode is provided" time="0.002">
+    </testcase>
+    <testcase classname="Bencode decoder tests Buffer tests should decode buffered string" name="Bencode decoder tests Buffer tests should decode buffered string" time="0">
+    </testcase>
+    <testcase classname="Bencode decoder tests Buffer tests should decode buffered number" name="Bencode decoder tests Buffer tests should decode buffered number" time="0.001">
+    </testcase>
+    <testcase classname="Bencode decoder tests String tests should decode empty string" name="Bencode decoder tests String tests should decode empty string" time="0">
+    </testcase>
+    <testcase classname="Bencode decoder tests String tests should decode string" name="Bencode decoder tests String tests should decode string" time="0">
+    </testcase>
+    <testcase classname="Bencode decoder tests Integer tests should decode integer" name="Bencode decoder tests Integer tests should decode integer" time="0">
+    </testcase>
+    <testcase classname="Bencode decoder tests Integer tests should decode negative integer" name="Bencode decoder tests Integer tests should decode negative integer" time="0">
+    </testcase>
+    <testcase classname="Bencode decoder tests Integer tests should decode integer with plus sign" name="Bencode decoder tests Integer tests should decode integer with plus sign" time="0">
+    </testcase>
+    <testcase classname="Bencode decoder tests Integer tests should decode zero" name="Bencode decoder tests Integer tests should decode zero" time="0">
+    </testcase>
+    <testcase classname="Bencode decoder tests Integer tests should decode negative zero" name="Bencode decoder tests Integer tests should decode negative zero" time="0">
+    </testcase>
+    <testcase classname="Bencode decoder tests Integer tests should decode float as int" name="Bencode decoder tests Integer tests should decode float as int" time="0">
+    </testcase>
+    <testcase classname="Bencode decoder tests Integer tests should decode negative float as int" name="Bencode decoder tests Integer tests should decode negative float as int" time="0">
+    </testcase>
+    <testcase classname="Bencode decoder tests List tests should decode empty list" name="Bencode decoder tests List tests should decode empty list" time="0">
+    </testcase>
+    <testcase classname="Bencode decoder tests List tests should decode list of strings" name="Bencode decoder tests List tests should decode list of strings" time="0.001">
+    </testcase>
+    <testcase classname="Bencode decoder tests List tests should decode list of integers" name="Bencode decoder tests List tests should decode list of integers" time="0">
+    </testcase>
+    <testcase classname="Bencode decoder tests List tests should decode list with string and integer" name="Bencode decoder tests List tests should decode list with string and integer" time="0">
+    </testcase>
+    <testcase classname="Bencode decoder tests List tests should decode list of lists with integers and strings" name="Bencode decoder tests List tests should decode list of lists with integers and strings" time="0.001">
+    </testcase>
+    <testcase classname="Bencode decoder tests List tests should decode list of dictionaries with integers and strings" name="Bencode decoder tests List tests should decode list of dictionaries with integers and strings" time="0">
+    </testcase>
+    <testcase classname="Bencode decoder tests Dictionary tests should decode empty dictionary" name="Bencode decoder tests Dictionary tests should decode empty dictionary" time="0">
+    </testcase>
+    <testcase classname="Bencode decoder tests Dictionary tests should decode dictionary with string" name="Bencode decoder tests Dictionary tests should decode dictionary with string" time="0.001">
+    </testcase>
+    <testcase classname="Bencode decoder tests Dictionary tests should decode dictionary with integer" name="Bencode decoder tests Dictionary tests should decode dictionary with integer" time="0">
+    </testcase>
+    <testcase classname="Bencode decoder tests Dictionary tests should decode dictionary with string and integer" name="Bencode decoder tests Dictionary tests should decode dictionary with string and integer" time="0">
+    </testcase>
+    <testcase classname="Bencode decoder tests Dictionary tests should decode dictionary with list" name="Bencode decoder tests Dictionary tests should decode dictionary with list" time="0">
+    </testcase>
+    <testcase classname="Bencode decoder tests Dictionary tests should decode dictionary with dictionary" name="Bencode decoder tests Dictionary tests should decode dictionary with dictionary" time="0">
+    </testcase>
+  </testsuite>
+  <testsuite name="Bencode encoder test" errors="0" failures="0" skipped="0" timestamp="2020-03-29T13:36:39" time="0.14" tests="29">
+    <testcase classname="Bencode encoder test should throw error if type is not supported" name="Bencode encoder test should throw error if type is not supported" time="0.008">
+    </testcase>
+    <testcase classname="Bencode encoder test Buffer tests should encode empty buffer" name="Bencode encoder test Buffer tests should encode empty buffer" time="0">
+    </testcase>
+    <testcase classname="Bencode encoder test Buffer tests should encode buffer" name="Bencode encoder test Buffer tests should encode buffer" time="0">
+    </testcase>
+    <testcase classname="Bencode encoder test String tests should encode empty string" name="Bencode encoder test String tests should encode empty string" time="0.001">
+    </testcase>
+    <testcase classname="Bencode encoder test String tests should encode string" name="Bencode encoder test String tests should encode string" time="0">
+    </testcase>
+    <testcase classname="Bencode encoder test Boolean tests should encode true as 1" name="Bencode encoder test Boolean tests should encode true as 1" time="0">
+    </testcase>
+    <testcase classname="Bencode encoder test Boolean tests should encode false as 0" name="Bencode encoder test Boolean tests should encode false as 0" time="0">
+    </testcase>
+    <testcase classname="Bencode encoder test ArrayBuffer tests should encode ArrayBuffer" name="Bencode encoder test ArrayBuffer tests should encode ArrayBuffer" time="0">
+    </testcase>
+    <testcase classname="Bencode encoder test ArrayBuffer tests should encode DataView" name="Bencode encoder test ArrayBuffer tests should encode DataView" time="0">
+    </testcase>
+    <testcase classname="Bencode encoder test Integer tests should encode integer" name="Bencode encoder test Integer tests should encode integer" time="0">
+    </testcase>
+    <testcase classname="Bencode encoder test Integer tests should encode negative integer" name="Bencode encoder test Integer tests should encode negative integer" time="0">
+    </testcase>
+    <testcase classname="Bencode encoder test Integer tests should encode zero" name="Bencode encoder test Integer tests should encode zero" time="0">
+    </testcase>
+    <testcase classname="Bencode encoder test Integer tests should encode negative zero" name="Bencode encoder test Integer tests should encode negative zero" time="0">
+    </testcase>
+    <testcase classname="Bencode encoder test Integer tests should encode float as int" name="Bencode encoder test Integer tests should encode float as int" time="0">
+    </testcase>
+    <testcase classname="Bencode encoder test Integer tests should encode negative float as int" name="Bencode encoder test Integer tests should encode negative float as int" time="0.001">
+    </testcase>
+    <testcase classname="Bencode encoder test List tests should encode empty list" name="Bencode encoder test List tests should encode empty list" time="0">
+    </testcase>
+    <testcase classname="Bencode encoder test List tests should encode list of strings" name="Bencode encoder test List tests should encode list of strings" time="0">
+    </testcase>
+    <testcase classname="Bencode encoder test List tests should encode list of integers" name="Bencode encoder test List tests should encode list of integers" time="0">
+    </testcase>
+    <testcase classname="Bencode encoder test List tests should encode list with string and integer" name="Bencode encoder test List tests should encode list with string and integer" time="0">
+    </testcase>
+    <testcase classname="Bencode encoder test List tests should encode list of lists with integers and strings" name="Bencode encoder test List tests should encode list of lists with integers and strings" time="0.001">
+    </testcase>
+    <testcase classname="Bencode encoder test List tests should encode list of dictionaries with integers and strings" name="Bencode encoder test List tests should encode list of dictionaries with integers and strings" time="0">
+    </testcase>
+    <testcase classname="Bencode encoder test List tests should encode list and skip null and undefined values" name="Bencode encoder test List tests should encode list and skip null and undefined values" time="0">
+    </testcase>
+    <testcase classname="Bencode encoder test Dictionary tests should encode empty dictionary" name="Bencode encoder test Dictionary tests should encode empty dictionary" time="0">
+    </testcase>
+    <testcase classname="Bencode encoder test Dictionary tests should encode dictionary with string" name="Bencode encoder test Dictionary tests should encode dictionary with string" time="0">
+    </testcase>
+    <testcase classname="Bencode encoder test Dictionary tests should encode dictionary with integer" name="Bencode encoder test Dictionary tests should encode dictionary with integer" time="0.001">
+    </testcase>
+    <testcase classname="Bencode encoder test Dictionary tests should encode dictionary with string and integer" name="Bencode encoder test Dictionary tests should encode dictionary with string and integer" time="0">
+    </testcase>
+    <testcase classname="Bencode encoder test Dictionary tests should encode dictionary with list" name="Bencode encoder test Dictionary tests should encode dictionary with list" time="0">
+    </testcase>
+    <testcase classname="Bencode encoder test Dictionary tests should encode dictionary with dictionary" name="Bencode encoder test Dictionary tests should encode dictionary with dictionary" time="0">
+    </testcase>
+    <testcase classname="Bencode encoder test Dictionary tests should encode dictionary and skip null and undefined values" name="Bencode encoder test Dictionary tests should encode dictionary and skip null and undefined values" time="0">
+    </testcase>
+  </testsuite>
+</testsuites>

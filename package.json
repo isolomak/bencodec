@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "./node_modules/.bin/tsc",
-    "test": "./node_modules/.bin/jest",
+    "test": "./node_modules/.bin/jest --runInBand",
     "prepare": "npm run build",
     "prepublishOnly": "npm test"
   },
@@ -30,6 +30,7 @@
     "@types/jest": "^25.1.4",
     "@types/node": "^13.9.5",
     "jest": "^25.2.3",
+    "jest-junit": "^10.0.0",
     "ts-jest": "^25.2.1",
     "typescript": "^3.8.3"
   },

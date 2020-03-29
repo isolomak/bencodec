@@ -3,6 +3,10 @@ module.exports = {
     testEnvironment: 'node',
     verbose: true,
     collectCoverage: true,
+    reporters: [
+        "default",
+        [ "jest-junit", { outputDirectory: "./coverage" } ]
+    ],
     coverageThreshold: {
         global: {
             branches: 100,
