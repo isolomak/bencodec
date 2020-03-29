@@ -122,18 +122,14 @@ export class BencodeDecoder {
 	 */
 	private _decodeList(): Array<Buffer|number|object> {
 		const acc = [];
-
-		if (this._currentChar() === FLAG.LIST) {
-			this._next();
-		}
+		// skip LIST flag
+		this._next();
 
 		while (this._currentChar() !== FLAG.END) {
 			acc.push(this.decode());
 		}
-
-		if (this._currentChar() === FLAG.END) {
-			this._next();
-		}
+		// skip END flag
+		this._next();
 
 		return acc;
 	}
@@ -143,19 +139,15 @@ export class BencodeDecoder {
 	 */
 	private _decodeDictionary() {
 		const acc: { [ key: string ]: Buffer | string | number | object } = {};
-
-		if (this._currentChar() === FLAG.DICTIONARY) {
-			this._next();
-		}
+		// skip DICTIONARY flag
+		this._next();
 
 		while (this._currentChar() !== FLAG.END) {
 			const key = this._decodeString();
 			acc[key.toString()] = this.decode();
 		}
-
-		if (this._currentChar() === FLAG.END) {
-			this._next();
-		}
+		// skip END flag
+		this._next();
 
 		return acc;
 	}
