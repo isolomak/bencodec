@@ -50,6 +50,11 @@ describe('Bencode decoder tests', () => {
             assert.deepStrictEqual(result, Buffer.from('spam'));
         });
 
+        test('should decode string with stringify option', () => {
+            const result = decode('4:spam', true);
+            assert.deepStrictEqual(result, 'spam');
+        });
+
     });
 
     describe('Integer tests', () => {

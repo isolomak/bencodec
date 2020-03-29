@@ -27,15 +27,29 @@
 | ` import bencodec from 'bencodec' ` | ` const bencodec = require('bencodec') `|
 
 ##### Decode data
-```typescript
-  const decoded = bencodec.decode('d3:bar4:spam3:fooi42ee');
+To convert byte strings to strings pass `true` as the second parameter.
+```
+  bencodec.decode( 'd3:bar4:spam3:fooi42ee' );
+  // { bar: <Buffer 73 70 61 6d>, foo: 42 }
+  
+  bencodec.decode( 'd3:bar4:spam3:fooi42ee', true );
+  // { bar: 'spam', foo: 42 }
+  
+  bencodec.decode( Buffer.from('d3:bar4:spam3:fooi42ee'), true );
+  // { bar: 'spam', foo: 42 }
   ```
 
 ##### Encode data
-```typescript
-  const encoded = bencodec.encode({ bar: 'spam', foo: 42 });
+By default method encode will return the byte string.  
+Pass `true` as the second parameter to 'stringify' result.
 ```
+  bencodec.encode({ bar: 'spam', foo: 42 });  
+  // <Buffer 64 33 ... 65 65>
   
+  bencodec.encode({ bar: 'spam', foo: 42 }, true);
+  // 'd3:bar4:spam3:fooi42ee'
+```
+
 ## Tests
   ```
   npm test
