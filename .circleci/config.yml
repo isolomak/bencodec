@@ -47,6 +47,12 @@ jobs:
       - codecov/upload:
           file: coverage
           token: $CODECOV_TOKEN
+      - run:
+          name: PWD
+          command: pwd
+      - run:
+          name: List dirs
+          command: ls -la
 
 workflows:
   version: 2
