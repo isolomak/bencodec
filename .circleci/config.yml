@@ -38,21 +38,19 @@ jobs:
       - run:
           name: Test and collect code coverage
           command: npm test --ci
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: "reports/junit/test-results.xml"
       - store_artifacts:
-          path: reports/junit
+          path: coverage/junit
       - store_test_results: # for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
-          path: reports/junit
+          path: coverage/junit
       - codecov/upload:
-          file: coverage
+          file: coverage/clover.xml
           token: $CODECOV_TOKEN
       - run:
           name: PWD
           command: pwd
       - run:
           name: List dirs
-          command: ls -la
+          command: ls -la ./coverage
 
 workflows:
   version: 2
