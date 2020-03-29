@@ -42,6 +42,9 @@
 
 version: 2.1
 
+orbs:
+  codecov: codecov/codecov@1.0.5
+
 defaults: &defaults
   working_directory: ~/bencodec-repo
   docker:
@@ -83,7 +86,9 @@ jobs:
           path: reports/junit
       - store_test_results: # for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
           path: reports/junit
-
+      - codecov/upload:
+          file: ~bencodec-repo/coverage
+          token: $CODECOV_TOKEN
 
 workflows:
   version: 2
