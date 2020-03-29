@@ -1,13 +1,9 @@
-# Common values
-defaults: &common
-  working_directory: ~/mern-starter
-  docker:
-    - image: circleci/node:10.16.3
-
 version: 2.1
 jobs:
   build:
-    <<: *common
+    working_directory: ~/mern-starter
+    docker:
+      - image: circleci/node:10.16.3
     steps:
       - checkout
       - run:
@@ -22,12 +18,8 @@ jobs:
           key: dependency-cache-{{ checksum "package-lock.json" }}
           paths:
             - ./node_modules
-  test:
-    <<: *common
-    steps:
-      - checkout
       - run:
-          name: Test and collect coverage
+          name: Test and collect code coverage
           command: npm test --ci
           environment:
             JEST_JUNIT_OUTPUT_DIR: "reports/junit/test-results.xml"
@@ -35,12 +27,3 @@ jobs:
           path: reports/junit
       - store_test_results: # for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
           path: reports/junit
-
-workflows:
-  version: 2.0
-  build_and_test:
-    jobs:
-      - build
-      - test:
-          requires:
-            - build
