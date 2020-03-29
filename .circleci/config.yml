@@ -67,6 +67,6 @@ jobs:
           path: coverage
           prefix: coverage
       - store_artifacts:
-          - coverage/junit
+          path: coverage/junit
       - store_test_results: # for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
           path: coverage/junit
