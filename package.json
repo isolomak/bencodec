@@ -2,7 +2,7 @@
   "name": "bencodec",
   "version": "2.0.0",
   "description": "Fast and easy to use bencode codec.",
-  "main": "index.js",
+  "main": "build/index.js",
   "scripts": {
     "build": "./node_modules/.bin/tsc",
     "test": "./node_modules/.bin/jest --runInBand",
