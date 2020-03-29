@@ -1,35 +1,45 @@
+
+[![NPM](https://nodei.co/npm/bencodec.png)](https://npmjs.org/package/bencodec)
+
 [![build](https://circleci.com/gh/IvanSolomakhin/bencodec.svg?style=shield)](https://app.circleci.com/pipelines/github/IvanSolomakhin/bencodec)
 [![codecov](https://codecov.io/gh/IvanSolomakhin/bencodec/branch/master/graph/badge.svg)](https://codecov.io/gh/IvanSolomakhin/bencodec)
 
-## bencodec
-  Bencode codec. Fast, easy to use, without dependencies.
+## Bencodec
+  Library for decoding and encoding [bencoded](https://en.wikipedia.org/wiki/Bencode) data.  
+  Compliant with the [BitTorrent bencoding specification](https://wiki.theory.org/index.php/BitTorrentSpecification#Bencoding).
 
+  Fast and easy to use.  
+  Written in TypeScript.  
+  Without dependencies.  
+  100% test coverage.
+  
+  
 ## Installation
-  ```
-  npm install bencodec --save
-  ```
-  
-## Usage
-  ```js
-  const bencodec = require('bencodec');  
-    
-  // decode example  
-  const decoded = bencodec.decode('d3:bar4:spam3:fooi42ee');  
-  
-  // encode number  
-  const encoded = bencodec.encode(42);  
-  // encode string  
-  const encoded = bencodec.encode('spam');  
-  // encode Array  
-  const encoded = bencodec.encode(['spam', 42]);  
-  // encode Object  
-  const encoded = bencodec.encode({ bar: 'spam', foo: 42 });  
-  ```
-  
-  Check [Wiki](https://github.com/IvanSolomakhin/bencodec/wiki) for more information. 
-  
+| npm | yarn |
+|---|---|
+| `npm install --save bencodec` | `yarn add bencodec` |
 
+## Getting Started
+
+##### Import library
+| typescript | javascript |
+|---|---|
+| ` import bencodec from 'bencodec' ` | ` const bencodec = require('bencodec') `|
+
+##### Decode data
+```typescript
+  const decoded = bencodec.decode('d3:bar4:spam3:fooi42ee');
+  ```
+
+##### Encode data
+```typescript
+  const encoded = bencodec.encode({ bar: 'spam', foo: 42 });
+```
+  
 ## Tests
   ```
   npm test
   ```
+
+## License
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
