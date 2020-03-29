@@ -66,5 +66,7 @@ jobs:
       - store_artifacts: # for display in Artifacts: https://circleci.com/docs/2.0/artifacts/
           path: coverage
           prefix: coverage
+      - store_artifacts:
+          - coverage/junit
       - store_test_results: # for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
-          path: ./coverage/junit.xml
+          path: coverage/junit
