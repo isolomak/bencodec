@@ -1,0 +1,58 @@
+version: 2.1
+
+orbs:
+  codecov: codecov/codecov@1.0.5
+
+defaults: &defaults
+  working_directory: ~/bencodec-repo
+  docker:
+    - image: circleci/node:10.16.3
+
+jobs:
+# Build
+  build:
+    <<: *defaults
+    steps:
+      - checkout
+      - run:
+          name: Update npm
+          command: 'sudo npm install -g npm@latest'
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+      - run:
+          name: Install dependencies
+          command: npm install
+      - save_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+          paths:
+            - ./node_modules
+      - persist_to_workspace:
+          root: .
+          paths: .
+# Test
+  test:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/bencodec-repo
+      - run:
+          name: Test and collect code coverage
+          command: npm test --ci
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: "reports/junit/test-results.xml"
+      - store_artifacts:
+          path: report/junit
+      - store_test_results: # for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
+          path: report/junit
+      - codecov/upload:
+          file: coverage/coverage-final.json
+          token: $CODECOV_TOKEN
+
+workflows:
+  version: 2
+  build_and_test:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build

@@ -1,0 +1,61 @@
+{
+  "defaultSeverity": "error",
+  "extends": [
+    "tslint:recommended"
+  ],
+  "jsRules": {
+    "max-line-length": {
+      "options": [150]
+    }
+  },
+  "rules": {
+    "align": [
+      true,
+      "arguments",
+      "elements",
+      "members",
+      "parameters",
+      "statements"
+    ],
+    "arrow-parens": {
+      "options": "ban-single-arg-parens"
+    },
+    "indent": [ true, "tabs", 4 ],
+    "object-literal-shorthand": false,
+    "eofline": true,
+    "import-spacing": false,
+    "max-line-length": {
+      "options": [ 120 ]
+    },
+    "new-parens": true,
+    "no-arg": true,
+    "no-bitwise": true,
+    "no-conditional-assignment": true,
+    "no-consecutive-blank-lines": false,
+    "no-console": {
+      "severity": "warning",
+      "options": ["debug", "info", "log", "time", "timeEnd", "trace"]
+    },
+    "no-empty-interface": true,
+    "no-trailing-whitespace": true,
+    "no-unused-expression": true,
+    "ordered-imports": false,
+    "object-literal-sort-keys": false,
+    "semicolon": [true, "always", "ignore-bound-class-methods"],
+    "trailing-comma": false,
+    "triple-equals": true,
+    "curly": {
+      "options": "ignore-same-line"
+    },
+    "one-variable-per-declaration": true,
+    "typedef-whitespace": {
+      "options": {
+        "property-declaration": "nospace"
+      }
+    },
+    "quotemark": [true, "single"],
+    "variable-name": [ true, "check-format", "allow-leading-underscore", "ban-keywords" ],
+    "whitespace": [ true, "check-branch", "check-decl", "check-operator", "check-separator", "check-type" ]
+  },
+  "rulesDirectory": []
+}

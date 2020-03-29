@@ -63,4 +63,10 @@ typings/
 
 #documentation
 js_doc.conf.json
-out/
+
+#Build
+build/
+
+#Editors
+.idea
+.vscode
