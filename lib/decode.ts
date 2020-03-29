@@ -10,17 +10,19 @@ export class BencodeDecoder {
 	}
 
 	private _index: number;
+	private readonly _stringify: boolean;
 	private readonly _buffer: Buffer;
 
 	/**
 	 * Constructor
 	 */
-	constructor(data: Buffer | string) {
+	constructor(data: Buffer | string, stringify: boolean = false) {
 		if (!data) {
 			throw new Error('Nothing to decode');
 		}
 
 		this._index = 0;
+		this._stringify = stringify;
 		this._buffer = typeof data === 'string' ? Buffer.from(data) : data;
 	}
 
@@ -64,7 +66,7 @@ export class BencodeDecoder {
 	/**
 	 * Decode bencoded string
 	 */
-	private _decodeString(): Buffer {
+	private _decodeString(): Buffer | string {
 		const length = this._decodeInteger();
 		const acc = [];
 
@@ -72,7 +74,9 @@ export class BencodeDecoder {
 			acc.push( this._next() );
 		}
 
-		return Buffer.from(acc);
+		return this._stringify
+			? Buffer.from(acc).toString('utf8')
+			: Buffer.from(acc);
 	}
 
 	/**
@@ -120,7 +124,7 @@ export class BencodeDecoder {
 	/**
 	 * Decode bencoded list
 	 */
-	private _decodeList(): Array<Buffer|number|object> {
+	private _decodeList(): Array<Buffer|string|number|object> {
 		const acc = [];
 		// skip LIST flag
 		this._next();
@@ -154,4 +158,7 @@ export class BencodeDecoder {
 
 }
 
-export default (data: Buffer | string) => new BencodeDecoder(data).decode();
+export function decode(data: Buffer | string, stringify?: boolean) {
+	return new BencodeDecoder(data, stringify).decode();
+}
+export default decode;

@@ -184,4 +184,9 @@ describe('Bencode encoder test', () => {
 
 	});
 
+	test('should stringify encoded data', () => {
+		const result = encode({ bar: [ 'cow', 42 ] }, true);
+		assert.deepStrictEqual(result, 'd3:barl3:cowi42eee');
+	});
+
 });

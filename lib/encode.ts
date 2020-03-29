@@ -2,21 +2,29 @@ import { EncodeTypes, FLAG } from './types';
 
 export class BencodeEncoder {
 
-
 	private _integerIdentifier = Buffer.from( [ FLAG.INTEGER ] );
 	private _stringDelimiterIdentifier = Buffer.from( [ FLAG.STR_DELIMITER ] );
 	private _listIdentifier = Buffer.from( [ FLAG.LIST ] );
 	private _dictionaryIdentifier = Buffer.from( [ FLAG.DICTIONARY ] );
 	private _endIdentifier = Buffer.from( [ FLAG.END ] );
 
-	private _buffer: Uint8Array[] = [];
+	private readonly _buffer: Uint8Array[];
+	private readonly _stringify: boolean;
+
+	constructor(stringify: boolean = false) {
+		this._buffer = [];
+		this._stringify = stringify;
+	}
 
 	/**
 	 * Encode data
 	 */
 	public encode(data: EncodeTypes) {
 		this._encodeType(data);
-		return Buffer.concat(this._buffer);
+		return this._stringify
+			? Buffer.concat(this._buffer).toString('utf8')
+			: Buffer.concat(this._buffer);
+
 	}
 
 	/**
@@ -121,4 +129,7 @@ export class BencodeEncoder {
 
 }
 
-export default (data: EncodeTypes) => new BencodeEncoder().encode(data);
+export function encode(data: EncodeTypes, stringify?: boolean) {
+	return new BencodeEncoder(stringify).encode(data);
+}
+export default encode;
