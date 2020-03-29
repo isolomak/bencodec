@@ -65,5 +65,7 @@ jobs:
           command: npm test --ci
           environment:
             JEST_JUNIT_OUTPUT_DIR: "reports/junit/test-results.xml"
+      - store_artifacts:
+          path: reports/junit
       - store_test_results: # for display in Test Summary: https://circleci.com/docs/2.0/collect-test-data/
           path: reports/junit
