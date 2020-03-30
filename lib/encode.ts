@@ -19,18 +19,17 @@ export class BencodeEncoder {
 	/**
 	 * Encode data
 	 */
-	public encode(data: EncodeSupportedTypes) {
+	public encode(data: EncodeSupportedTypes): Buffer | string {
 		this._encodeType(data);
 		return this._stringify
 			? Buffer.concat(this._buffer).toString('utf8')
 			: Buffer.concat(this._buffer);
-
 	}
 
 	/**
 	 * Encode data by type
 	 */
-	private _encodeType(data: EncodeSupportedTypes) {
+	private _encodeType(data: EncodeSupportedTypes): void {
 		if (Buffer.isBuffer(data)) {
 			return this._encodeBuffer(data);
 		}
@@ -63,7 +62,7 @@ export class BencodeEncoder {
 	/**
 	 * Encode buffer
 	 */
-	private _encodeBuffer(data: Buffer) {
+	private _encodeBuffer(data: Buffer): void {
 		this._buffer.push(
 			Buffer.from(String(data.length)),
 			this._stringDelimiterIdentifier,
@@ -74,7 +73,7 @@ export class BencodeEncoder {
 	/**
 	 * Encode string
 	 */
-	private _encodeString(data: string) {
+	private _encodeString(data: string): void {
 		this._buffer.push(
 			Buffer.from(String(Buffer.byteLength(data))),
 			this._stringDelimiterIdentifier,
@@ -85,7 +84,7 @@ export class BencodeEncoder {
 	/**
 	 * Encode integer
 	 */
-	private _encodeInteger(data: number) {
+	private _encodeInteger(data: number): void {
 		this._buffer.push(
 			this._integerIdentifier,
 			Buffer.from(String(Math.round(data))),
@@ -96,7 +95,7 @@ export class BencodeEncoder {
 	/**
 	 * Encode list
 	 */
-	private _encodeList(data: BencodeList) {
+	private _encodeList(data: BencodeList): void {
 		this._buffer.push( this._listIdentifier );
 
 		for (let i = 0; i < data.length; i++) {
@@ -112,7 +111,7 @@ export class BencodeEncoder {
 	/**
 	 * Encode dictionary
 	 */
-	private _encodeDictionary(data: BencodeDictionary) {
+	private _encodeDictionary(data: BencodeDictionary): void {
 		this._buffer.push( this._dictionaryIdentifier );
 
 		const keys = Object.keys(data).sort();
@@ -129,7 +128,7 @@ export class BencodeEncoder {
 
 }
 
-export function encode(data: EncodeSupportedTypes, stringify?: boolean) {
+export function encode(data: EncodeSupportedTypes, stringify?: boolean): Buffer | string {
 	return new BencodeEncoder(stringify).encode(data);
 }
 export default encode;

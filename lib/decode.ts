@@ -52,14 +52,14 @@ export class BencodeDecoder {
 	/**
 	 * Get character by current index
 	 */
-	private _currentChar() {
+	private _currentChar(): number {
 		return this._buffer[this._index];
 	}
 
 	/**
 	 * Get character by current index and increment
 	 */
-	private _next() {
+	private _next(): number {
 		return this._buffer[this._index++];
 	}
 
