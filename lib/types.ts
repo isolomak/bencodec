@@ -9,6 +9,10 @@ export enum FLAG {
 	DOT = 0x2e, // '.'
 }
 
-type ItemTypes = string | number | boolean | object;
-export type EncodeTypes = ItemTypes | Array<ItemTypes>;
+export type BencodeList = Array< BencodeTypes >;
 
+export type BencodeDictionary = { [key: string]: BencodeTypes };
+
+export type BencodeTypes = string | number | Buffer | BencodeDictionary | BencodeList;
+
+export type EncodeSupportedTypes = BencodeTypes | ArrayBuffer | ArrayBufferView | Boolean;

@@ -1,11 +1,11 @@
-import { FLAG } from './types';
+import { BencodeDictionary, BencodeList, BencodeTypes, FLAG } from './types';
 
 export class BencodeDecoder {
 
 	/**
 	 * Check if character in integer
 	 */
-	private static _isInteger(char: number) {
+	private static _isInteger(char: number): boolean {
 		return char >= 0x30 && char <= 0x39;
 	}
 
@@ -29,7 +29,7 @@ export class BencodeDecoder {
 	/**
 	 * Decode bencoded data
 	 */
-	public decode() {
+	public decode(): BencodeTypes {
 		if (BencodeDecoder._isInteger( this._currentChar() )) {
 			return this._decodeString();
 		}
@@ -52,14 +52,14 @@ export class BencodeDecoder {
 	/**
 	 * Get character by current index
 	 */
-	private _currentChar() {
+	private _currentChar(): number {
 		return this._buffer[this._index];
 	}
 
 	/**
 	 * Get character by current index and increment
 	 */
-	private _next() {
+	private _next(): number {
 		return this._buffer[this._index++];
 	}
 
@@ -124,7 +124,7 @@ export class BencodeDecoder {
 	/**
 	 * Decode bencoded list
 	 */
-	private _decodeList(): Array<Buffer|string|number|object> {
+	private _decodeList(): BencodeList {
 		const acc = [];
 		// skip LIST flag
 		this._next();
@@ -141,8 +141,8 @@ export class BencodeDecoder {
 	/**
 	 * Decode bencoded dictionary
 	 */
-	private _decodeDictionary() {
-		const acc: { [ key: string ]: Buffer | string | number | object } = {};
+	private _decodeDictionary(): BencodeDictionary {
+		const acc: BencodeDictionary = {};
 		// skip DICTIONARY flag
 		this._next();
 
@@ -158,7 +158,7 @@ export class BencodeDecoder {
 
 }
 
-export function decode(data: Buffer | string, stringify?: boolean) {
+export function decode(data: Buffer | string, stringify?: boolean): BencodeTypes {
 	return new BencodeDecoder(data, stringify).decode();
 }
 export default decode;
