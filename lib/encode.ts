@@ -1,4 +1,4 @@
-import { EncodeTypes, FLAG } from './types';
+import { BencodeDictionary, BencodeList, EncodeSupportedTypes, FLAG } from './types';
 
 export class BencodeEncoder {
 
@@ -19,7 +19,7 @@ export class BencodeEncoder {
 	/**
 	 * Encode data
 	 */
-	public encode(data: EncodeTypes) {
+	public encode(data: EncodeSupportedTypes) {
 		this._encodeType(data);
 		return this._stringify
 			? Buffer.concat(this._buffer).toString('utf8')
@@ -30,7 +30,7 @@ export class BencodeEncoder {
 	/**
 	 * Encode data by type
 	 */
-	private _encodeType(data: EncodeTypes) {
+	private _encodeType(data: EncodeSupportedTypes) {
 		if (Buffer.isBuffer(data)) {
 			return this._encodeBuffer(data);
 		}
@@ -53,7 +53,7 @@ export class BencodeEncoder {
 			return this._encodeString(data);
 		}
 		if (typeof data === 'object') {
-			return this._encodeDictionary(data as { [ key: string ]: EncodeTypes });
+			return this._encodeDictionary(data as BencodeDictionary);
 		}
 
 		throw new Error(`${typeof data} is unsupported type.`);
@@ -96,7 +96,7 @@ export class BencodeEncoder {
 	/**
 	 * Encode list
 	 */
-	private _encodeList(data: Array<EncodeTypes>) {
+	private _encodeList(data: BencodeList) {
 		this._buffer.push( this._listIdentifier );
 
 		for (let i = 0; i < data.length; i++) {
@@ -112,7 +112,7 @@ export class BencodeEncoder {
 	/**
 	 * Encode dictionary
 	 */
-	private _encodeDictionary(data: { [ key: string ]: EncodeTypes }) {
+	private _encodeDictionary(data: BencodeDictionary) {
 		this._buffer.push( this._dictionaryIdentifier );
 
 		const keys = Object.keys(data).sort();
@@ -129,7 +129,7 @@ export class BencodeEncoder {
 
 }
 
-export function encode(data: EncodeTypes, stringify?: boolean) {
+export function encode(data: EncodeSupportedTypes, stringify?: boolean) {
 	return new BencodeEncoder(stringify).encode(data);
 }
 export default encode;
