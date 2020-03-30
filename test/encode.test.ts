@@ -4,6 +4,7 @@ import encode from '../lib/encode';
 describe('Bencode encoder test', () => {
 
 	test('should throw error if type is not supported', () => {
+		// @ts-ignore - for testing purposes
 		expect(() => encode(function () {})).toThrowError(Error);
 	});
 
@@ -139,6 +140,7 @@ describe('Bencode encoder test', () => {
 		});
 
 		test('should encode list and skip null and undefined values', () => {
+			// @ts-ignore - for testing purposes
 			const result = encode([ null, undefined, 42 ]);
 			assert.deepStrictEqual(result, Buffer.from('li42ee'));
 		});
@@ -178,6 +180,7 @@ describe('Bencode encoder test', () => {
 		});
 
 		test('should encode dictionary and skip null and undefined values', () => {
+			// @ts-ignore - for testing purposes
 			const result = encode({ bar: null, cow: null, baz: 42 });
 			assert.deepStrictEqual(result, Buffer.from('d3:bazi42ee'));
 		});
