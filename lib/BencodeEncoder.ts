@@ -127,8 +127,3 @@ export class BencodeEncoder {
 	}
 
 }
-
-export function encode(data: EncodeSupportedTypes, stringify?: boolean): Buffer | string {
-	return new BencodeEncoder(stringify).encode(data);
-}
-export default encode;

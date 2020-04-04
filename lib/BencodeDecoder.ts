@@ -157,8 +157,3 @@ export class BencodeDecoder {
 	}
 
 }
-
-export function decode(data: Buffer | string, stringify?: boolean): BencodeTypes {
-	return new BencodeDecoder(data, stringify).decode();
-}
-export default decode;
