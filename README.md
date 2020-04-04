@@ -1,8 +1,10 @@
 
 [![NPM](https://nodei.co/npm/bencodec.png)](https://npmjs.org/package/bencodec)
 
-[![build](https://circleci.com/gh/IvanSolomakhin/bencodec.svg?style=shield)](https://app.circleci.com/pipelines/github/IvanSolomakhin/bencodec)
-[![codecov](https://codecov.io/gh/IvanSolomakhin/bencodec/branch/master/graph/badge.svg)](https://codecov.io/gh/IvanSolomakhin/bencodec)
+![ci](https://github.com/IvanSolomakhin/bencodec/workflows/ci/badge.svg)
+[![Coverage Status](https://coveralls.io/repos/github/IvanSolomakhin/bencodec/badge.svg)](https://coveralls.io/github/IvanSolomakhin/magnetizer)
+[![NPM Downloads](https://img.shields.io/npm/dt/bencodec)](https://npmjs.org/package/magnetizer)
+[![NPM License](https://img.shields.io/npm/l/bencodec)](LICENSE.md)
 
 ## Bencodec
   Library for decoding and encoding [bencoded](https://en.wikipedia.org/wiki/Bencode) data.  
