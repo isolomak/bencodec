@@ -115,7 +115,10 @@ export class BencodeEncoder {
 		this._buffer.push( this._dictionaryIdentifier );
 
 		const keys = Object.keys(data).sort();
-		for (const key of keys) {
+
+		for (let i = 0; i < keys.length; i++) {
+			const key = keys[i];
+
 			if (data[key] === null || data[key] === undefined) {
 				continue ;
 			}
