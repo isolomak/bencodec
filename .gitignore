@@ -67,6 +67,7 @@ js_doc.conf.json
 
 #Build
 build/
+lib/
 
 #Editors
 .idea

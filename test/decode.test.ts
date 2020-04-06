@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { decode } from '../lib/bencodec';
+import { decode } from '../src/bencodec';
 
 describe('Bencode decoder tests', () => {
 

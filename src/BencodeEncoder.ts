@@ -8,7 +8,7 @@ export class BencodeEncoder {
 	private _dictionaryIdentifier = Buffer.from( [ FLAG.DICTIONARY ] );
 	private _endIdentifier = Buffer.from( [ FLAG.END ] );
 
-	private readonly _buffer: Uint8Array[];
+	private readonly _buffer: Array<Uint8Array>;
 	private readonly _stringify: boolean;
 
 	constructor(stringify: boolean = false) {
