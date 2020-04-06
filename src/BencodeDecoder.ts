@@ -84,8 +84,8 @@ export class BencodeDecoder {
 	 */
 	private _decodeInteger(): number {
 		let sign = 1;
-		let float = false;
-		let number = 0;
+		let isFloat = false;
+		let integer = 0;
 
 		if (this._currentChar() === FLAG.INTEGER) {
 			this._index++;
@@ -102,11 +102,11 @@ export class BencodeDecoder {
 
 		while (BencodeDecoder._isInteger(this._currentChar()) || this._currentChar() === FLAG.DOT) {
 			if (this._currentChar() === FLAG.DOT) {
-				float = true;
+				isFloat = true;
 			}
 
-			float === false
-				? number = number * 10 + (this._next() - 0x30)
+			isFloat === false
+				? integer = integer * 10 + (this._next() - 0x30)
 				: this._index++;
 		}
 
@@ -118,7 +118,7 @@ export class BencodeDecoder {
 			this._index++;
 		}
 
-		return number * sign;
+		return integer * sign;
 	}
 
 	/**
