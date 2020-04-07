@@ -14,7 +14,7 @@
     "watch": false,
     "pretty": true,
     "strict": true,
-    "outDir": "./build",
+    "outDir": "./lib",
     "lib": [
       "es6",
       "dom",
@@ -36,7 +36,7 @@
   "exclude": [
     "node_modules",
     "**/*.spec.ts",
-    "build",
+    "lib/",
     ".git"
   ]
 }
