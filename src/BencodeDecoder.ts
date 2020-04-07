@@ -142,7 +142,7 @@ export class BencodeDecoder {
 	 * Decode bencoded dictionary
 	 */
 	private _decodeDictionary(): BencodeDictionary {
-		const acc: BencodeDictionary = {};
+		const acc: BencodeDictionary = { };
 		// skip DICTIONARY flag
 		this._next();
 
