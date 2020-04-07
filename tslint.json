@@ -64,7 +64,13 @@
 	  "check-decl",
 	  "check-operator",
 	  "check-separator",
-	  "check-type"
+	  "check-type",
+	  "check-module",
+	  "check-rest-spread",
+	  "check-typecast",
+	  "check-type-operator",
+	  "check-preblock",
+	  "check-postbrace"
 	],
 	"adjacent-overload-signatures": true,
 	"array-type": {

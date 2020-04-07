@@ -10,4 +10,5 @@ export function encode(data: EncodeSupportedTypes, stringify?: boolean): Buffer 
 	return new BencodeEncoder(stringify).encode(data);
 }
 
-export default { decode, encode };
+export const bencodec = { decode, encode };
+export default bencodec;
