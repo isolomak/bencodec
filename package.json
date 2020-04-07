@@ -1,6 +1,6 @@
 {
   "name": "bencodec",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Fast and easy to use bencode codec.",
   "main": "lib/bencodec.js",
   "scripts": {
