@@ -16,10 +16,15 @@
   },
   "keywords": [
     "bencode",
-    "bencodec",
     "codec",
     "bittorrent",
-    "torrent"
+    "torrent",
+    "read",
+    "create",
+    "decode",
+    "encode",
+    "parse",
+    "generate"
   ],
   "author": "isolomak",
   "license": "MIT",
