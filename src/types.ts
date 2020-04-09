@@ -1,3 +1,7 @@
+export interface IBencodecOptions {
+	stringify?: boolean;
+}
+
 export enum FLAG {
 	INTEGER = 0x69, // 'i'
 	STR_DELIMITER = 0x3A, // ':'

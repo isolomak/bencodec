@@ -1,4 +1,4 @@
-import { BencodeDictionary, BencodeList, EncodeSupportedTypes, FLAG } from './types';
+import { BencodeDictionary, BencodeList, EncodeSupportedTypes, FLAG, IBencodecOptions } from './types';
 
 export class BencodeEncoder {
 
@@ -9,11 +9,14 @@ export class BencodeEncoder {
 	private _endIdentifier = Buffer.from( [ FLAG.END ] );
 
 	private readonly _buffer: Array<Uint8Array>;
-	private readonly _stringify: boolean;
+	private readonly _options: IBencodecOptions;
 
-	constructor(stringify: boolean = false) {
+	/**
+	 * Constructor
+	 */
+	constructor(options?: IBencodecOptions) {
 		this._buffer = [];
-		this._stringify = stringify;
+		this._options = options || { };
 	}
 
 	/**
@@ -21,7 +24,7 @@ export class BencodeEncoder {
 	 */
 	public encode(data: EncodeSupportedTypes): Buffer | string {
 		this._encodeType(data);
-		return this._stringify
+		return this._options.stringify
 			? Buffer.concat(this._buffer).toString('utf8')
 			: Buffer.concat(this._buffer);
 	}

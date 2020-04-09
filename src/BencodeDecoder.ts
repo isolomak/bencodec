@@ -1,4 +1,4 @@
-import { BencodeDictionary, BencodeList, BencodeTypes, FLAG } from './types';
+import { BencodeDictionary, BencodeList, BencodeTypes, FLAG, IBencodecOptions } from './types';
 
 export class BencodeDecoder {
 
@@ -10,20 +10,22 @@ export class BencodeDecoder {
 	}
 
 	private _index: number;
-	private readonly _stringify: boolean;
 	private readonly _buffer: Buffer;
+	private readonly _options: IBencodecOptions;
 
 	/**
 	 * Constructor
 	 */
-	constructor(data: Buffer | string, stringify: boolean = false) {
+	constructor(data: Buffer | string, options?: IBencodecOptions) {
 		if (!data) {
 			throw new Error('Nothing to decode');
 		}
 
 		this._index = 0;
-		this._stringify = stringify;
-		this._buffer = typeof data === 'string' ? Buffer.from(data) : data;
+		this._options = options || { };
+		this._buffer = typeof data === 'string'
+			? Buffer.from(data)
+			: data;
 	}
 
 	/**
@@ -74,7 +76,7 @@ export class BencodeDecoder {
 			acc.push( this._next() );
 		}
 
-		return this._stringify
+		return this._options.stringify
 			? Buffer.from(acc).toString('utf8')
 			: Buffer.from(acc);
 	}
