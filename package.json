@@ -1,6 +1,6 @@
 {
   "name": "bencodec",
-  "version": "2.3.2",
+  "version": "2.3.3",
   "description": "Library for decoding and encoding bencoded data",
   "main": "lib/bencodec.js",
   "scripts": {
