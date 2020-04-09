@@ -2,7 +2,7 @@
   "name": "bencodec",
   "version": "2.3.3",
   "description": "Library for decoding and encoding bencoded data",
-  "main": "lib/bencodec.js",
+  "main": "lib/index.js",
   "scripts": {
     "build": "./node_modules/.bin/tsc",
     "lint": "./node_modules/tslint/bin/tslint ./src/**/*.ts",
@@ -38,9 +38,10 @@
     "jest": "^25.2.7",
     "ts-jest": "^25.3.1",
     "tslint": "^6.1.1",
+    "tslint-eslint-rules": "^5.4.0",
     "typescript": "^3.8.3"
   },
-  "types": "./lib/bencodec.d.ts",
+  "types": "./lib/index.d.ts",
   "files": [
     "lib/**/*",
     "LICENSE.md"

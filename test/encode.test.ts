@@ -1,11 +1,11 @@
 import * as assert from 'assert';
-import { encode } from '../src/bencodec';
+import { encode } from '../src/index';
 
 describe('Bencode encoder test', () => {
 
 	test('should throw error if type is not supported', () => {
 		// @ts-ignore - for testing purposes
-		expect(() => encode(function () {})).toThrowError(Error);
+		expect(() => encode(() => { })).toThrowError(Error);
 	});
 
 	describe('Buffer tests', () => {
@@ -150,7 +150,7 @@ describe('Bencode encoder test', () => {
 	describe('Dictionary tests', () => {
 
 		test('should encode empty dictionary', () => {
-			const result = encode({});
+			const result = encode({ });
 			assert.deepStrictEqual(result, Buffer.from('de'));
 		});
 
@@ -188,7 +188,7 @@ describe('Bencode encoder test', () => {
 	});
 
 	test('should stringify encoded data', () => {
-		const result = encode({ bar: [ 'cow', 42 ] }, true);
+		const result = encode({ bar: [ 'cow', 42 ] }, { stringify: true });
 		assert.deepStrictEqual(result, 'd3:barl3:cowi42eee');
 	});
 
