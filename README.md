@@ -2,8 +2,8 @@
 [![NPM](https://nodei.co/npm/bencodec.png)](https://npmjs.org/package/bencodec)
 
 ![ci](https://github.com/IvanSolomakhin/bencodec/workflows/ci/badge.svg)
-[![Coverage Status](https://coveralls.io/repos/github/IvanSolomakhin/bencodec/badge.svg)](https://coveralls.io/github/IvanSolomakhin/magnetizer)
-[![NPM Downloads](https://img.shields.io/npm/dt/bencodec)](https://npmjs.org/package/magnetizer)
+[![Coverage Status](https://coveralls.io/repos/github/IvanSolomakhin/bencodec/badge.svg)](https://coveralls.io/github/IvanSolomakhin/bencodec)
+[![NPM Downloads](https://img.shields.io/npm/dt/bencodec)](https://npmjs.org/package/bencodec)
 [![NPM License](https://img.shields.io/npm/l/bencodec)](LICENSE.md)
 
 ## Bencodec

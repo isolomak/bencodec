@@ -1,7 +1,7 @@
 {
   "name": "bencodec",
   "version": "2.3.2",
-  "description": "Fast and easy to use bencode codec.",
+  "description": "Library for decoding and encoding bencoded data",
   "main": "lib/bencodec.js",
   "scripts": {
     "build": "./node_modules/.bin/tsc",
