@@ -4,8 +4,8 @@ export interface IBencodecOptions {
 
 export enum FLAG {
 	INTEGER = 0x69, // 'i'
-	STR_DELIMITER = 0x3A, // ':'
-	LIST = 0x6C, // 'l'
+	STR_DELIMITER = 0x3a, // ':'
+	LIST = 0x6c, // 'l'
 	DICTIONARY = 0x64, // 'd'
 	END = 0x65, // 'e'
 	MINUS = 0x2d, // '-'
@@ -13,7 +13,7 @@ export enum FLAG {
 	DOT = 0x2e, // '.'
 }
 
-export type BencodeList = Array< BencodeTypes >;
+export type BencodeList = Array<BencodeTypes>;
 
 export type BencodeDictionary = { [key: string]: BencodeTypes };
 

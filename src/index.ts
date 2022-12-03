@@ -1,13 +1,22 @@
-import { BencodeTypes, EncodeSupportedTypes, IBencodecOptions } from './types';
 import { BencodeDecoder } from './BencodeDecoder';
 import { BencodeEncoder } from './BencodeEncoder';
+import { BencodeTypes, EncodeSupportedTypes, IBencodecOptions } from './types';
 
+
+/**
+ * Decode string or buffer
+ */
 export function decode(data: Buffer | string, options?: IBencodecOptions): BencodeTypes {
-	return new BencodeDecoder(data, options).decode();
+	const decoder = new BencodeDecoder(data, options);
+	return decoder.decode();
 }
 
+/**
+ * Encode data
+ */
 export function encode(data: EncodeSupportedTypes, options?: IBencodecOptions): Buffer | string {
-	return new BencodeEncoder(options).encode(data);
+	const encoder = new BencodeEncoder(options);
+	return encoder.encode(data);
 }
 
 export const bencodec = { decode, encode };

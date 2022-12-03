@@ -49,7 +49,7 @@ export class BencodeEncoder {
 			return this._encodeInteger(data ? 1 : 0);
 		}
 		if (typeof data === 'number') {
-			return this._encodeInteger(data as number);
+			return this._encodeInteger(data);
 		}
 		if (typeof data === 'string') {
 			return this._encodeString(data);
@@ -101,11 +101,11 @@ export class BencodeEncoder {
 	private _encodeList(data: BencodeList): void {
 		this._buffer.push( this._listIdentifier );
 
-		for (let i = 0; i < data.length; i++) {
-			if (data[i] === null || data[i] === undefined) {
+		for (const item of data) {
+			if (item === null || item === undefined ) {
 				continue ;
 			}
-			this._encodeType(data[i]);
+			this._encodeType(item);
 		}
 
 		this._buffer.push( this._endIdentifier );
@@ -119,12 +119,11 @@ export class BencodeEncoder {
 
 		const keys = Object.keys(data).sort();
 
-		for (let i = 0; i < keys.length; i++) {
-			const key = keys[i];
-
+		for (const key of keys) {
 			if (data[key] === null || data[key] === undefined) {
 				continue ;
 			}
+
 			this._encodeString(key);
 			this._encodeType(data[key]);
 		}
