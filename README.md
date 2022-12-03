@@ -56,7 +56,7 @@ const result = bencodec.encode({ bar: 'spam', foo: 42 });
 To convert buffer to string add `stringify` option
 
 ``` typescript
-const data = bencodec.encode({ bar: 'spam', foo: 42 }, { stringify: true });
+const result = bencodec.encode({ bar: 'spam', foo: 42 }, { stringify: true });
 // result = 'd3:bar4:spam3:fooi42ee'
 ```
 
