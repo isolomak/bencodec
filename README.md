@@ -1,3 +1,4 @@
+# Bencodec
 
 [![NPM](https://nodei.co/npm/bencodec.png)](https://npmjs.org/package/bencodec)
 
@@ -7,15 +8,13 @@
 [![NPM License](https://img.shields.io/npm/l/bencodec)](LICENSE.md)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
-## Bencodec
+Library for decoding and encoding [bencode](https://en.wikipedia.org/wiki/Bencode) data  
+Compliant with the [BitTorrent bencoding specification](https://wiki.theory.org/index.php/BitTorrentSpecification#Bencoding)
 
-  Library for decoding and encoding [bencode](https://en.wikipedia.org/wiki/Bencode) data  
-  Compliant with the [BitTorrent bencoding specification](https://wiki.theory.org/index.php/BitTorrentSpecification#Bencoding)
-
-  Fast and easy to use  
-  Written in TypeScript  
-  Fully tested with 100% code coverage  
-  Without dependencies  
+Fast and easy to use  
+Written in TypeScript  
+Fully tested with 100% code coverage  
+Without dependencies  
 
 ## Installation
 
