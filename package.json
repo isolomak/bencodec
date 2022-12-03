@@ -1,7 +1,7 @@
 {
   "name": "bencodec",
   "version": "2.4.1",
-  "description": "Library for decoding and encoding bencoded data",
+  "description": "Library for decoding and encoding bencode data",
   "main": "lib/index.js",
   "scripts": {
     "build": "./node_modules/.bin/tsc",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/IvanSolomakhin/bencodec.git"
+    "url": "git+https://github.com/isolomak/bencodec.git"
   },
   "keywords": [
     "bencode",
