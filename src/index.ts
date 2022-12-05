@@ -2,6 +2,7 @@ import { BencodeDecoder } from './BencodeDecoder';
 import { BencodeEncoder } from './BencodeEncoder';
 import { BencodeTypes, EncodeSupportedTypes, IBencodecOptions } from './types';
 
+export * from './types';
 
 /**
  * Decode string or buffer
