@@ -1,15 +1,15 @@
 import { BencodeDecoder } from './BencodeDecoder';
 import { BencodeEncoder } from './BencodeEncoder';
-import { BencodeTypes, EncodeSupportedTypes, IBencodecOptions } from './types';
+import { EncodeSupportedTypes, IBencodecOptions } from './types';
 
 export * from './types';
 
 /**
  * Decode string or buffer
  */
-export function decode(data: Buffer | string, options?: IBencodecOptions): BencodeTypes {
+export function decode<Type = unknown>(data: Buffer | string, options?: IBencodecOptions): Type {
 	const decoder = new BencodeDecoder(data, options);
-	return decoder.decode();
+	return decoder.decode() as Type;
 }
 
 /**
