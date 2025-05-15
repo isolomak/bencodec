@@ -1,4 +1,5 @@
 import { BencodeDictionary, BencodeList, BencodeTypes, FLAG, IBencodecOptions } from './types';
+import { Buffer } from 'node:buffer';
 
 export class BencodeDecoder {
 
