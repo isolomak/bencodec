@@ -1,6 +1,7 @@
 import { BencodeDecoder } from './BencodeDecoder';
 import { BencodeEncoder } from './BencodeEncoder';
 import { EncodeSupportedTypes, IBencodecOptions } from './types';
+import { Buffer } from 'node:buffer';
 
 export * from './types';
 
