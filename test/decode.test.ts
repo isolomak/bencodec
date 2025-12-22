@@ -23,6 +23,21 @@ describe('Bencode decoder tests', () => {
 		expect(() => decode(() => { })).toThrow(Error);
 	});
 
+	test('should throw error on unexpected end of data', () => {
+		// List without end marker
+		expect(() => decode('li42')).toThrow('Unexpected end of data');
+		// Dictionary without end marker
+		expect(() => decode('d3:foo')).toThrow('Unexpected end of data');
+		// Integer without end marker
+		expect(() => decode('i42')).toThrow('Unexpected end of data');
+		// Integer with invalid terminator
+		expect(() => decode('i42x')).toThrow('Unexpected end of data');
+		// Nested list without end marker
+		expect(() => decode('lli1e')).toThrow('Unexpected end of data');
+		// Nested dictionary without end marker
+		expect(() => decode('d1:ad1:bi1e')).toThrow('Unexpected end of data');
+	});
+
 	describe('Buffer tests', () => {
 		test('should decode buffered string', () => {
 			const result = decode(Buffer.from('0:'));
@@ -39,6 +54,12 @@ describe('Bencode decoder tests', () => {
 		test('should decode empty string', () => {
 			const result = decode('0:');
 			assert.deepStrictEqual(result, Buffer.from(''));
+		});
+
+		test('should handle malformed string without delimiter', () => {
+			// Malformed input without ':' - parser reads number then bytes from current position
+			const result = decode('4spam');
+			assert.deepStrictEqual(result, Buffer.from('spam'));
 		});
 
 		test('should decode string', () => {

@@ -33,6 +33,10 @@ export class BencodeDecoder {
 	 * Decode bencoded data
 	 */
 	public decode(): BencodeTypes {
+		if (this._isEOF()) {
+			throw new Error('Unexpected end of data');
+		}
+
 		if (BencodeDecoder._isInteger(this._currentChar())) {
 			return this._decodeString();
 		}
@@ -57,6 +61,13 @@ export class BencodeDecoder {
 	 */
 	private _currentChar(): number {
 		return this._buffer[this._index];
+	}
+
+	/**
+	 * Check if we've reached the end of the buffer
+	 */
+	private _isEOF(): boolean {
+		return this._index >= this._buffer.length;
 	}
 
 	/**
@@ -120,11 +131,13 @@ export class BencodeDecoder {
 				: this._index++;
 		}
 
-		if (this._currentChar() === FLAG.END) {
+		if (isBencodeInteger) {
+			if (this._isEOF() || this._currentChar() !== FLAG.END) {
+				throw new Error('Unexpected end of data');
+			}
 			this._index++;
 		}
-
-		if (this._currentChar() === FLAG.STR_DELIMITER) {
+		else if (this._currentChar() === FLAG.STR_DELIMITER) {
 			this._index++;
 		}
 
@@ -143,8 +156,12 @@ export class BencodeDecoder {
 		// skip LIST flag
 		this._next();
 
-		while (this._currentChar() !== FLAG.END) {
+		while (!this._isEOF() && this._currentChar() !== FLAG.END) {
 			acc.push(this.decode());
+		}
+
+		if (this._isEOF()) {
+			throw new Error('Unexpected end of data');
 		}
 		// skip END flag
 		this._next();
@@ -161,7 +178,7 @@ export class BencodeDecoder {
 		// skip DICTIONARY flag
 		this._next();
 
-		while (this._currentChar() !== FLAG.END) {
+		while (!this._isEOF() && this._currentChar() !== FLAG.END) {
 			const key = this._decodeString();
 			const keyBuffer = Buffer.isBuffer(key) ? key : Buffer.from(key);
 
@@ -171,6 +188,10 @@ export class BencodeDecoder {
 
 			prevKey = keyBuffer;
 			acc[key.toString()] = this.decode();
+		}
+
+		if (this._isEOF()) {
+			throw new Error('Unexpected end of data');
 		}
 		// skip END flag
 		this._next();
