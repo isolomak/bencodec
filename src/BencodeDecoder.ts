@@ -121,6 +121,10 @@ export class BencodeDecoder {
 			this._index++;
 		}
 
+		if (sign === -1 && integer === 0) {
+			throw new Error('Invalid bencode: negative zero is not allowed');
+		}
+
 		return integer * sign;
 	}
 
