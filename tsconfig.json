@@ -3,7 +3,7 @@
     "module": "CommonJS",
     "declaration": true,
     "esModuleInterop": true,
-    "target": "es6",
+    "target": "ES2020",
     "noImplicitAny": true,
     "moduleResolution": "node",
     "allowJs": false,
@@ -15,18 +15,7 @@
     "strict": true,
     "outDir": "./lib",
     "lib": [
-      "es6",
-      "dom",
-      "es2015.core",
-      "es2015.collection",
-      "es2015.generator",
-      "es2015.iterable",
-      "es2015.promise",
-      "es2015.proxy",
-      "es2015.reflect",
-      "es2015.symbol",
-      "es2015.symbol.wellknown",
-      "esnext.asynciterable"
+      "ES2020"
     ]
   },
   "include": [
