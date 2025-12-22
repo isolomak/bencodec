@@ -134,6 +134,17 @@ describe('Bencode decoder tests', () => {
 			const result = decode('i-42.2e');
 			assert.strictEqual(result, -42);
 		});
+
+		test('should truncate float toward zero (not round)', () => {
+			// 42.5 truncates to 42 (not 43)
+			assert.strictEqual(decode('i42.5e'), 42);
+			// 42.9 truncates to 42 (not 43)
+			assert.strictEqual(decode('i42.9e'), 42);
+			// -42.5 truncates to -42 (not -43)
+			assert.strictEqual(decode('i-42.5e'), -42);
+			// -42.9 truncates to -42 (not -43)
+			assert.strictEqual(decode('i-42.9e'), -42);
+		});
 	});
 
 	describe('List tests', () => {
