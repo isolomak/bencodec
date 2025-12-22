@@ -183,4 +183,38 @@ describe('Bencode encoder test', () => {
 		const result = encode({ bar: [ 'cow', 42 ] }, { stringify: true });
 		assert.deepStrictEqual(result, 'd3:barl3:cowi42eee');
 	});
+
+	describe('Circular reference tests', () => {
+		test('should throw error for circular reference in dictionary', () => {
+			const obj: Record<string, unknown> = { foo: 'bar' };
+			obj.self = obj;
+			expect(() => encode(obj)).toThrow('Circular reference detected');
+		});
+
+		test('should throw error for circular reference in list', () => {
+			const arr: unknown[] = [ 1, 2 ];
+			arr.push(arr);
+			expect(() => encode(arr)).toThrow('Circular reference detected');
+		});
+
+		test('should throw error for nested circular reference', () => {
+			const obj: Record<string, unknown> = { foo: 'bar' };
+			obj.nested = { inner: obj };
+			expect(() => encode(obj)).toThrow('Circular reference detected');
+		});
+
+		test('should throw error for circular reference between list and dictionary', () => {
+			const obj: Record<string, unknown> = { foo: 'bar' };
+			const arr: unknown[] = [ obj ];
+			obj.list = arr;
+			expect(() => encode(obj)).toThrow('Circular reference detected');
+		});
+
+		test('should allow same object in different branches', () => {
+			const shared = { value: 42 };
+			const obj = { a: shared, b: shared };
+			const result = encode(obj);
+			assert.deepStrictEqual(result, Buffer.from('d1:ad5:valuei42ee1:bd5:valuei42eee'));
+		});
+	});
 });

@@ -11,6 +11,7 @@ export class BencodeEncoder {
 
 	private readonly _buffer: Array<Uint8Array>;
 	private readonly _options: IBencodecOptions;
+	private readonly _visited: WeakSet<object>;
 
 	/**
 	 * Constructor
@@ -18,6 +19,7 @@ export class BencodeEncoder {
 	constructor(options?: IBencodecOptions) {
 		this._buffer = [];
 		this._options = options || { };
+		this._visited = new WeakSet();
 	}
 
 	/**
@@ -100,6 +102,11 @@ export class BencodeEncoder {
 	 * Encode list
 	 */
 	private _encodeList(data: BencodeList): void {
+		if (this._visited.has(data)) {
+			throw new Error('Circular reference detected');
+		}
+		this._visited.add(data);
+
 		this._buffer.push(this._listIdentifier);
 
 		for (const item of data) {
@@ -110,12 +117,18 @@ export class BencodeEncoder {
 		}
 
 		this._buffer.push(this._endIdentifier);
+		this._visited.delete(data);
 	}
 
 	/**
 	 * Encode dictionary
 	 */
 	private _encodeDictionary(data: BencodeDictionary): void {
+		if (this._visited.has(data)) {
+			throw new Error('Circular reference detected');
+		}
+		this._visited.add(data);
+
 		this._buffer.push(this._dictionaryIdentifier);
 
 		const keys = Object.keys(data).sort();
@@ -130,6 +143,7 @@ export class BencodeEncoder {
 		}
 
 		this._buffer.push(this._endIdentifier);
+		this._visited.delete(data);
 	}
 
 }
