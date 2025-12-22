@@ -4,23 +4,23 @@ import { decode } from '../src/index';
 describe('Bencode decoder tests', () => {
 	test('should throw error if data to decode is not provided', () => {
 		// @ts-ignore - for testing purposes
-		expect(() => decode()).toThrowError(Error);
+		expect(() => decode()).toThrow(Error);
 		// @ts-ignore - for testing purposes
-		expect(() => decode(null)).toThrowError(Error);
+		expect(() => decode(null)).toThrow(Error);
 		// @ts-ignore - for testing purposes
-		expect(() => decode(undefined)).toThrowError(Error);
+		expect(() => decode(undefined)).toThrow(Error);
 	});
 
 	test('should throw error if invalid data to decode is provided', () => {
-		expect(() => decode('asd')).toThrowError(Error);
+		expect(() => decode('asd')).toThrow(Error);
 		// @ts-ignore - for testing purposes
-		expect(() => decode(42)).toThrowError(Error);
+		expect(() => decode(42)).toThrow(Error);
 		// @ts-ignore - for testing purposes
-		expect(() => decode([ 42 ])).toThrowError(Error);
+		expect(() => decode([ 42 ])).toThrow(Error);
 		// @ts-ignore - for testing purposes
-		expect(() => decode({ baz: 42 })).toThrowError(Error);
+		expect(() => decode({ baz: 42 })).toThrow(Error);
 		// @ts-ignore - for testing purposes
-		expect(() => decode(() => { })).toThrowError(Error);
+		expect(() => decode(() => { })).toThrow(Error);
 	});
 
 	describe('Buffer tests', () => {
@@ -73,9 +73,8 @@ describe('Bencode decoder tests', () => {
 			assert.strictEqual(result, 0);
 		});
 
-		test('should decode negative zero', () => {
-			const result = decode('i-0e');
-			assert.strictEqual(result, -0);
+		test('should throw error for negative zero', () => {
+			expect(() => decode('i-0e')).toThrow('Invalid bencode: negative zero is not allowed');
 		});
 
 		test('should decode float as int', () => {
@@ -101,9 +100,9 @@ describe('Bencode decoder tests', () => {
 		});
 
 		test('should decode list of integers', () => {
-			const result = decode('li42ei-42ei42.2ei-42.2ei0ei-0ee') as Array<any>;
+			const result = decode('li42ei-42ei42.2ei-42.2ei0ee') as Array<any>;
 			assert.deepStrictEqual(result, [
-				42, -42, 42, -42, 0, -0,
+				42, -42, 42, -42, 0,
 			]);
 		});
 
@@ -113,12 +112,12 @@ describe('Bencode decoder tests', () => {
 		});
 
 		test('should decode list of lists with integers and strings', () => {
-			const result = decode('ll4:spam3:bareli42ei-42ei42.2ei-42.2ei0ei-0eee') as Array<any>;
+			const result = decode('ll4:spam3:bareli42ei-42ei42.2ei-42.2ei0eee') as Array<any>;
 
 			assert.deepStrictEqual(result, [
 				[ Buffer.from('spam'), Buffer.from('bar') ],
 				[
-					42, -42, 42, -42, 0, -0,
+					42, -42, 42, -42, 0,
 				],
 			]);
 		});

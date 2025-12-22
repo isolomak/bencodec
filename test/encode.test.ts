@@ -4,7 +4,7 @@ import { encode } from '../src/index';
 describe('Bencode encoder test', () => {
 	test('should throw error if type is not supported', () => {
 		// @ts-ignore - for testing purposes
-		expect(() => encode(() => { })).toThrowError(Error);
+		expect(() => encode(() => { })).toThrow(Error);
 	});
 
 	describe('Buffer tests', () => {
