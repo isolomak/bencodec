@@ -10,8 +10,13 @@ export * from './types';
  */
 export function decode<Type = unknown>(data: Buffer | string, options?: IBencodecOptions): Type {
 	const decoder = new BencodeDecoder(data, options);
+	const result = decoder.decode();
 
-	return decoder.decode() as Type;
+	if (options?.strict && decoder.hasRemainingData()) {
+		throw new Error('Invalid bencode: unexpected data after valid bencode');
+	}
+
+	return result as Type;
 }
 
 /**

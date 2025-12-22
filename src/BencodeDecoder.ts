@@ -30,6 +30,13 @@ export class BencodeDecoder {
 	}
 
 	/**
+	 * Check if there is remaining data in the buffer after decoding
+	 */
+	public hasRemainingData(): boolean {
+		return this._index < this._buffer.length;
+	}
+
+	/**
 	 * Decode bencoded data
 	 */
 	public decode(): BencodeTypes {

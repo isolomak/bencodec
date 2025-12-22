@@ -248,5 +248,30 @@ describe('Bencode decoder tests', () => {
 			expect(() => decode('d1:bi1e1:ai2ee', { strict: true, stringify: true }))
 				.toThrow('Invalid bencode: dictionary keys must be in sorted order');
 		});
+
+		test('should throw error for trailing data after integer in strict mode', () => {
+			expect(() => decode('i42ei99e', { strict: true }))
+				.toThrow('Invalid bencode: unexpected data after valid bencode');
+		});
+
+		test('should throw error for trailing data after string in strict mode', () => {
+			expect(() => decode('4:spamextra', { strict: true }))
+				.toThrow('Invalid bencode: unexpected data after valid bencode');
+		});
+
+		test('should throw error for trailing data after list in strict mode', () => {
+			expect(() => decode('li1eei2e', { strict: true }))
+				.toThrow('Invalid bencode: unexpected data after valid bencode');
+		});
+
+		test('should throw error for trailing data after dictionary in strict mode', () => {
+			expect(() => decode('d1:ai1eei2e', { strict: true }))
+				.toThrow('Invalid bencode: unexpected data after valid bencode');
+		});
+
+		test('should ignore trailing data without strict mode', () => {
+			const result = decode('i42ei99e');
+			assert.strictEqual(result, 42);
+		});
 	});
 });
