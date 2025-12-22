@@ -169,4 +169,42 @@ describe('Bencode decoder tests', () => {
 			assert.deepStrictEqual(result, { bar: { cow: Buffer.from('spam') } });
 		});
 	});
+
+	describe('Strict mode tests', () => {
+		test('should accept correctly sorted dictionary keys in strict mode', () => {
+			// Keys 'a', 'b', 'c' are in sorted order
+			const result = decode('d1:ai1e1:bi2e1:ci3ee', { strict: true });
+			assert.deepStrictEqual(result, { a: 1, b: 2, c: 3 });
+		});
+
+		test('should throw error for unsorted dictionary keys in strict mode', () => {
+			// Keys 'b', 'a' are not in sorted order
+			expect(() => decode('d1:bi1e1:ai2ee', { strict: true }))
+				.toThrow('Invalid bencode: dictionary keys must be in sorted order');
+		});
+
+		test('should throw error for duplicate dictionary keys in strict mode', () => {
+			// Duplicate key 'a'
+			expect(() => decode('d1:ai1e1:ai2ee', { strict: true }))
+				.toThrow('Invalid bencode: dictionary keys must be in sorted order');
+		});
+
+		test('should accept unsorted dictionary keys without strict mode', () => {
+			// Keys 'b', 'a' are not in sorted order, but strict mode is off
+			const result = decode('d1:bi1e1:ai2ee');
+			assert.deepStrictEqual(result, { b: 1, a: 2 });
+		});
+
+		test('should validate nested dictionary key order in strict mode', () => {
+			// Outer keys sorted, inner keys unsorted
+			expect(() => decode('d1:ad1:bi1e1:ai2eee', { strict: true }))
+				.toThrow('Invalid bencode: dictionary keys must be in sorted order');
+		});
+
+		test('should validate key order with stringify option in strict mode', () => {
+			// Keys 'b', 'a' are not in sorted order, with stringify enabled
+			expect(() => decode('d1:bi1e1:ai2ee', { strict: true, stringify: true }))
+				.toThrow('Invalid bencode: dictionary keys must be in sorted order');
+		});
+	});
 });

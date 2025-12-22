@@ -157,11 +157,19 @@ export class BencodeDecoder {
 	 */
 	private _decodeDictionary(): BencodeDictionary {
 		const acc: BencodeDictionary = { };
+		let prevKey: Buffer | null = null;
 		// skip DICTIONARY flag
 		this._next();
 
 		while (this._currentChar() !== FLAG.END) {
 			const key = this._decodeString();
+			const keyBuffer = Buffer.isBuffer(key) ? key : Buffer.from(key);
+
+			if (this._options.strict && prevKey !== null && Buffer.compare(prevKey, keyBuffer) >= 0) {
+				throw new Error('Invalid bencode: dictionary keys must be in sorted order');
+			}
+
+			prevKey = keyBuffer;
 			acc[key.toString()] = this.decode();
 		}
 		// skip END flag
