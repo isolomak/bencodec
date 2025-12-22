@@ -36,6 +36,8 @@ describe('Bencode decoder tests', () => {
 		expect(() => decode('lli1e')).toThrow('Unexpected end of data');
 		// Nested dictionary without end marker
 		expect(() => decode('d1:ad1:bi1e')).toThrow('Unexpected end of data');
+		// String length exceeds buffer
+		expect(() => decode('100:abc')).toThrow('Unexpected end of data');
 	});
 
 	describe('Buffer tests', () => {

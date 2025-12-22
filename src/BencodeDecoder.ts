@@ -82,6 +82,11 @@ export class BencodeDecoder {
 	 */
 	private _decodeString(): Buffer | string {
 		const length = this._decodeInteger();
+
+		if (this._index + length > this._buffer.length) {
+			throw new Error('Unexpected end of data');
+		}
+
 		const acc = [];
 
 		for (let i = 0; i < length; i++) {
