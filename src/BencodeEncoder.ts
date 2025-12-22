@@ -3,11 +3,11 @@ import { Buffer } from 'node:buffer';
 
 export class BencodeEncoder {
 
-	private _integerIdentifier = Buffer.from( [ FLAG.INTEGER ] );
-	private _stringDelimiterIdentifier = Buffer.from( [ FLAG.STR_DELIMITER ] );
-	private _listIdentifier = Buffer.from( [ FLAG.LIST ] );
-	private _dictionaryIdentifier = Buffer.from( [ FLAG.DICTIONARY ] );
-	private _endIdentifier = Buffer.from( [ FLAG.END ] );
+	private _integerIdentifier = Buffer.from([ FLAG.INTEGER ]);
+	private _stringDelimiterIdentifier = Buffer.from([ FLAG.STR_DELIMITER ]);
+	private _listIdentifier = Buffer.from([ FLAG.LIST ]);
+	private _dictionaryIdentifier = Buffer.from([ FLAG.DICTIONARY ]);
+	private _endIdentifier = Buffer.from([ FLAG.END ]);
 
 	private readonly _buffer: Array<Uint8Array>;
 	private readonly _options: IBencodecOptions;
@@ -25,6 +25,7 @@ export class BencodeEncoder {
 	 */
 	public encode(data: EncodeSupportedTypes): Buffer | string {
 		this._encodeType(data);
+
 		return this._options.stringify
 			? Buffer.concat(this._buffer).toString('utf8')
 			: Buffer.concat(this._buffer);
@@ -60,7 +61,6 @@ export class BencodeEncoder {
 		}
 
 		throw new Error(`${typeof data} is unsupported type.`);
-
 	}
 
 	/**
@@ -100,36 +100,36 @@ export class BencodeEncoder {
 	 * Encode list
 	 */
 	private _encodeList(data: BencodeList): void {
-		this._buffer.push( this._listIdentifier );
+		this._buffer.push(this._listIdentifier);
 
 		for (const item of data) {
-			if (item === null || item === undefined ) {
-				continue ;
+			if (item === null || item === undefined) {
+				continue;
 			}
 			this._encodeType(item);
 		}
 
-		this._buffer.push( this._endIdentifier );
+		this._buffer.push(this._endIdentifier);
 	}
 
 	/**
 	 * Encode dictionary
 	 */
 	private _encodeDictionary(data: BencodeDictionary): void {
-		this._buffer.push( this._dictionaryIdentifier );
+		this._buffer.push(this._dictionaryIdentifier);
 
 		const keys = Object.keys(data).sort();
 
 		for (const key of keys) {
 			if (data[key] === null || data[key] === undefined) {
-				continue ;
+				continue;
 			}
 
 			this._encodeString(key);
 			this._encodeType(data[key]);
 		}
 
-		this._buffer.push( this._endIdentifier );
+		this._buffer.push(this._endIdentifier);
 	}
 
 }

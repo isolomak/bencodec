@@ -2,14 +2,12 @@ import * as assert from 'assert';
 import { encode } from '../src/index';
 
 describe('Bencode encoder test', () => {
-
 	test('should throw error if type is not supported', () => {
 		// @ts-ignore - for testing purposes
 		expect(() => encode(() => { })).toThrowError(Error);
 	});
 
 	describe('Buffer tests', () => {
-
 		test('should encode empty buffer', () => {
 			const result = encode(Buffer.from(''));
 			assert.deepStrictEqual(result, Buffer.from('0:'));
@@ -19,11 +17,9 @@ describe('Bencode encoder test', () => {
 			const result = encode(Buffer.from('spam'));
 			assert.deepStrictEqual(result, Buffer.from('4:spam'));
 		});
-
 	});
 
 	describe('String tests', () => {
-
 		test('should encode empty string', () => {
 			const result = encode('');
 			assert.deepStrictEqual(result, Buffer.from('0:'));
@@ -33,11 +29,9 @@ describe('Bencode encoder test', () => {
 			const result = encode('spam');
 			assert.deepStrictEqual(result, Buffer.from('4:spam'));
 		});
-
 	});
 
 	describe('Boolean tests', () => {
-
 		test('should encode true as 1', () => {
 			const result = encode(true);
 			assert.deepStrictEqual(result, Buffer.from('i1e'));
@@ -47,17 +41,16 @@ describe('Bencode encoder test', () => {
 			const result = encode(false);
 			assert.deepStrictEqual(result, Buffer.from('i0e'));
 		});
-
 	});
 
 	describe('ArrayBuffer tests', () => {
-
 		const toArrayBuffer = (buffer: Buffer) => {
 			const arrayBuffer = new ArrayBuffer(buffer.length);
 			const view = new Uint8Array(arrayBuffer);
 			for (let i = 0; i < buffer.length; ++i) {
 				view[i] = buffer[i];
 			}
+
 			return arrayBuffer;
 		};
 
@@ -67,14 +60,12 @@ describe('Bencode encoder test', () => {
 		});
 
 		test('should encode DataView', () => {
-			const result = encode(new DataView( toArrayBuffer(Buffer.from('spam'))));
+			const result = encode(new DataView(toArrayBuffer(Buffer.from('spam'))));
 			assert.deepStrictEqual(result, Buffer.from('4:spam'));
 		});
-
 	});
 
 	describe('Integer tests', () => {
-
 		test('should encode integer', () => {
 			const result = encode(42);
 			assert.deepStrictEqual(result, Buffer.from('i42e'));
@@ -104,11 +95,9 @@ describe('Bencode encoder test', () => {
 			const result = encode(-42.2);
 			assert.deepStrictEqual(result, Buffer.from('i-42e'));
 		});
-
 	});
 
 	describe('List tests', () => {
-
 		test('should encode empty list', () => {
 			const result = encode([]);
 			assert.deepStrictEqual(result, Buffer.from('le'));
@@ -120,7 +109,9 @@ describe('Bencode encoder test', () => {
 		});
 
 		test('should encode list of integers', () => {
-			const result = encode([ 42, -42, 42.2, -42.2, 0, -0 ]);
+			const result = encode([
+				42, -42, 42.2, -42.2, 0, -0,
+			]);
 			assert.deepStrictEqual(result, Buffer.from('li42ei-42ei42ei-42ei0ei0ee'));
 		});
 
@@ -130,12 +121,16 @@ describe('Bencode encoder test', () => {
 		});
 
 		test('should encode list of lists with integers and strings', () => {
-			const result = encode([ [ 'spam', 'bar' ], [ 42, -42, 42.2, -42.2, 0, -0 ] ]);
+			const result = encode([
+				[ 'spam', 'bar' ], [
+					42, -42, 42.2, -42.2, 0, -0,
+				],
+			]);
 			assert.deepStrictEqual(result, Buffer.from('ll4:spam3:bareli42ei-42ei42ei-42ei0ei0eee'));
 		});
 
 		test('should encode list of dictionaries with integers and strings', () => {
-			const result = encode([ { foo: 'spam', bar: 42 }, { baz: 'cow', vaz: -42 } ]);
+			const result = encode([{ foo: 'spam', bar: 42 }, { baz: 'cow', vaz: -42 }]);
 			assert.deepStrictEqual(result, Buffer.from('ld3:bari42e3:foo4:spamed3:baz3:cow3:vazi-42eee'));
 		});
 
@@ -144,11 +139,9 @@ describe('Bencode encoder test', () => {
 			const result = encode([ null, undefined, 42 ]);
 			assert.deepStrictEqual(result, Buffer.from('li42ee'));
 		});
-
 	});
 
 	describe('Dictionary tests', () => {
-
 		test('should encode empty dictionary', () => {
 			const result = encode({ });
 			assert.deepStrictEqual(result, Buffer.from('de'));
@@ -165,7 +158,7 @@ describe('Bencode encoder test', () => {
 		});
 
 		test('should encode dictionary with string and integer', () => {
-			const result = encode({ foo: 'spam',  bar: 42 });
+			const result = encode({ foo: 'spam', bar: 42 });
 			assert.deepStrictEqual(result, Buffer.from('d3:bari42e3:foo4:spame'));
 		});
 
@@ -184,12 +177,10 @@ describe('Bencode encoder test', () => {
 			const result = encode({ bar: null, cow: null, baz: 42 });
 			assert.deepStrictEqual(result, Buffer.from('d3:bazi42ee'));
 		});
-
 	});
 
 	test('should stringify encoded data', () => {
 		const result = encode({ bar: [ 'cow', 42 ] }, { stringify: true });
 		assert.deepStrictEqual(result, 'd3:barl3:cowi42eee');
 	});
-
 });

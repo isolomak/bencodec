@@ -10,6 +10,7 @@ export default [
 			parser,
 		},
 		files: [ '**/*.ts', '**/*.js', '*.mjs' ],
+		ignores: [ 'node_modules/**', 'build/**', 'lib/**', 'dist/**' ],
 		rules: {
 			'@stylistic/array-bracket-newline': [ 'warn', { multiline: true, minItems: 5 }],
 			'@stylistic/array-bracket-spacing': [ 'warn', 'always', { objectsInArrays: false, arraysInArrays: false }],

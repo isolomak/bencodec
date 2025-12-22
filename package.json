@@ -5,7 +5,8 @@
   "main": "lib/index.js",
   "scripts": {
     "build": "./node_modules/.bin/tsc",
-    "lint": "eslint src/**/*.ts",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "test": "npm run lint && ./node_modules/.bin/jest --runInBand",
     "prepare": "npm run build",
     "prepublishOnly": "npm run lint && npm test"

@@ -33,7 +33,7 @@ export class BencodeDecoder {
 	 * Decode bencoded data
 	 */
 	public decode(): BencodeTypes {
-		if (BencodeDecoder._isInteger( this._currentChar() )) {
+		if (BencodeDecoder._isInteger(this._currentChar())) {
 			return this._decodeString();
 		}
 
@@ -74,7 +74,7 @@ export class BencodeDecoder {
 		const acc = [];
 
 		for (let i = 0; i < length; i++) {
-			acc.push( this._next() );
+			acc.push(this._next());
 		}
 
 		return this._options.stringify
@@ -109,7 +109,7 @@ export class BencodeDecoder {
 			}
 
 			isFloat === false
-				? integer = integer * 10 + (this._next() - 0x30)
+				? integer = (integer * 10) + (this._next() - 0x30)
 				: this._index++;
 		}
 

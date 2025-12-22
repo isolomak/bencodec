@@ -10,6 +10,7 @@ export * from './types';
  */
 export function decode<Type = unknown>(data: Buffer | string, options?: IBencodecOptions): Type {
 	const decoder = new BencodeDecoder(data, options);
+
 	return decoder.decode() as Type;
 }
 
@@ -18,6 +19,7 @@ export function decode<Type = unknown>(data: Buffer | string, options?: IBencode
  */
 export function encode(data: EncodeSupportedTypes, options?: IBencodecOptions): Buffer | string {
 	const encoder = new BencodeEncoder(options);
+
 	return encoder.encode(data);
 }
 
