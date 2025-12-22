@@ -95,6 +95,17 @@ describe('Bencode encoder test', () => {
 			const result = encode(-42.2);
 			assert.deepStrictEqual(result, Buffer.from('i-42e'));
 		});
+
+		test('should truncate float toward zero (not round)', () => {
+			// 42.5 truncates to 42 (not 43)
+			assert.deepStrictEqual(encode(42.5), Buffer.from('i42e'));
+			// 42.9 truncates to 42 (not 43)
+			assert.deepStrictEqual(encode(42.9), Buffer.from('i42e'));
+			// -42.5 truncates to -42 (not -43)
+			assert.deepStrictEqual(encode(-42.5), Buffer.from('i-42e'));
+			// -42.9 truncates to -42 (not -43)
+			assert.deepStrictEqual(encode(-42.9), Buffer.from('i-42e'));
+		});
 	});
 
 	describe('List tests', () => {

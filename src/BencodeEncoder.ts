@@ -88,12 +88,12 @@ export class BencodeEncoder {
 	}
 
 	/**
-	 * Encode integer
+	 * Encode integer (floats are truncated toward zero)
 	 */
 	private _encodeInteger(data: number): void {
 		this._buffer.push(
 			this._integerIdentifier,
-			Buffer.from(String(Math.round(data))),
+			Buffer.from(String(Math.trunc(data))),
 			this._endIdentifier,
 		);
 	}
