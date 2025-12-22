@@ -3,6 +3,7 @@ import { Buffer } from 'node:buffer';
 export interface IBencodecOptions {
 	stringify?: boolean;
 	strict?: boolean;
+	encoding?: BufferEncoding;
 }
 
 export enum FLAG {

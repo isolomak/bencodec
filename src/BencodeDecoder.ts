@@ -78,7 +78,7 @@ export class BencodeDecoder {
 		}
 
 		return this._options.stringify
-			? Buffer.from(acc).toString('utf8')
+			? Buffer.from(acc).toString(this._options.encoding || 'utf8')
 			: Buffer.from(acc);
 	}
 

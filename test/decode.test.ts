@@ -50,6 +50,25 @@ describe('Bencode decoder tests', () => {
 			const result = decode('4:spam', { stringify: true });
 			assert.deepStrictEqual(result, 'spam');
 		});
+
+		test('should decode string with custom encoding', () => {
+			// Test latin1 encoding preserves high bytes
+			const binaryData = Buffer.from([ 0xB4, 0xFF, 0x80, 0x00 ]);
+			const encoded = Buffer.concat([ Buffer.from('4:'), binaryData ]);
+			const result = decode(encoded, { stringify: true, encoding: 'latin1' }) as string;
+			const resultBuffer = Buffer.from(result, 'latin1');
+			assert.deepStrictEqual(resultBuffer, binaryData);
+		});
+
+		test('should default to utf8 encoding when not specified', () => {
+			const result = decode('4:spam', { stringify: true });
+			assert.strictEqual(result, 'spam');
+		});
+
+		test('should support hex encoding', () => {
+			const result = decode('4:spam', { stringify: true, encoding: 'hex' });
+			assert.strictEqual(result, '7370616d');
+		});
 	});
 
 	describe('Integer tests', () => {
