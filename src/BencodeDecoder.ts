@@ -41,7 +41,7 @@ export class BencodeDecoder {
 	 */
 	public decode(): BencodeTypes {
 		if (this._isEOF()) {
-			throw new Error('Unexpected end of data');
+			throw this._error('Unexpected end of data');
 		}
 
 		if (BencodeDecoder._isInteger(this._currentChar())) {
@@ -60,7 +60,7 @@ export class BencodeDecoder {
 			return this._decodeDictionary();
 		}
 
-		throw new Error('Invalid bencode data');
+		throw this._error('Invalid bencode data');
 	}
 
 	/**
@@ -78,6 +78,28 @@ export class BencodeDecoder {
 	}
 
 	/**
+	 * Format character for error message (printable or hex)
+	 */
+	private static _formatChar(char: number): string {
+		if (char >= 0x20 && char <= 0x7e) {
+			return `'${String.fromCharCode(char)}'`;
+		}
+
+		return `0x${char.toString(16).padStart(2, '0')}`;
+	}
+
+	/**
+	 * Create error with position context
+	 */
+	private _error(message: string): Error {
+		if (this._isEOF()) {
+			return new Error(`${message} at position ${this._index}`);
+		}
+
+		return new Error(`${message} at position ${this._index} (found ${BencodeDecoder._formatChar(this._currentChar())})`);
+	}
+
+	/**
 	 * Get character by current index and increment
 	 */
 	private _next(): number {
@@ -91,7 +113,7 @@ export class BencodeDecoder {
 		const length = this._decodeInteger();
 
 		if (this._index + length > this._buffer.length) {
-			throw new Error('Unexpected end of data');
+			throw this._error(`Unexpected end of data: expected ${length} bytes for string`);
 		}
 
 		const acc = [];
@@ -130,7 +152,7 @@ export class BencodeDecoder {
 
 		// Check for leading zeros (only for bencode integers, not string lengths)
 		if (isBencodeInteger && this._currentChar() === 0x30 && BencodeDecoder._isInteger(this._buffer[this._index + 1])) {
-			throw new Error('Invalid bencode: leading zeros are not allowed');
+			throw this._error('Invalid bencode: leading zeros are not allowed');
 		}
 
 		while (BencodeDecoder._isInteger(this._currentChar()) || this._currentChar() === FLAG.DOT) {
@@ -145,7 +167,7 @@ export class BencodeDecoder {
 
 		if (isBencodeInteger) {
 			if (this._isEOF() || this._currentChar() !== FLAG.END) {
-				throw new Error('Unexpected end of data');
+				throw this._error('Unexpected end of data: expected \'e\' to terminate integer');
 			}
 			this._index++;
 		}
@@ -154,7 +176,7 @@ export class BencodeDecoder {
 		}
 
 		if (sign === -1 && integer === 0) {
-			throw new Error('Invalid bencode: negative zero is not allowed');
+			throw this._error('Invalid bencode: negative zero is not allowed');
 		}
 
 		return integer * sign;
@@ -173,7 +195,7 @@ export class BencodeDecoder {
 		}
 
 		if (this._isEOF()) {
-			throw new Error('Unexpected end of data');
+			throw this._error('Unexpected end of data: expected \'e\' to terminate list');
 		}
 		// skip END flag
 		this._next();
@@ -195,7 +217,7 @@ export class BencodeDecoder {
 			const keyBuffer = Buffer.isBuffer(key) ? key : Buffer.from(key);
 
 			if (this._options.strict && prevKey !== null && Buffer.compare(prevKey, keyBuffer) >= 0) {
-				throw new Error('Invalid bencode: dictionary keys must be in sorted order');
+				throw this._error(`Invalid bencode: dictionary keys must be in sorted order (key '${key.toString()}' after '${prevKey.toString()}')`);
 			}
 
 			prevKey = keyBuffer;
@@ -203,7 +225,7 @@ export class BencodeDecoder {
 		}
 
 		if (this._isEOF()) {
-			throw new Error('Unexpected end of data');
+			throw this._error('Unexpected end of data: expected \'e\' to terminate dictionary');
 		}
 		// skip END flag
 		this._next();
