@@ -77,6 +77,12 @@ describe('Bencode decoder tests', () => {
 			expect(() => decode('i-0e')).toThrow('Invalid bencode: negative zero is not allowed');
 		});
 
+		test('should throw error for leading zeros', () => {
+			expect(() => decode('i03e')).toThrow('Invalid bencode: leading zeros are not allowed');
+			expect(() => decode('i007e')).toThrow('Invalid bencode: leading zeros are not allowed');
+			expect(() => decode('i-03e')).toThrow('Invalid bencode: leading zeros are not allowed');
+		});
+
 		test('should decode float as int', () => {
 			const result = decode('i42.2e');
 			assert.strictEqual(result, 42);

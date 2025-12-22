@@ -89,9 +89,11 @@ export class BencodeDecoder {
 		let sign = 1;
 		let isFloat = false;
 		let integer = 0;
+		let isBencodeInteger = false;
 
 		if (this._currentChar() === FLAG.INTEGER) {
 			this._index++;
+			isBencodeInteger = true;
 		}
 
 		if (this._currentChar() === FLAG.PLUS) {
@@ -101,6 +103,11 @@ export class BencodeDecoder {
 		if (this._currentChar() === FLAG.MINUS) {
 			this._index++;
 			sign = -1;
+		}
+
+		// Check for leading zeros (only for bencode integers, not string lengths)
+		if (isBencodeInteger && this._currentChar() === 0x30 && BencodeDecoder._isInteger(this._buffer[this._index + 1])) {
+			throw new Error('Invalid bencode: leading zeros are not allowed');
 		}
 
 		while (BencodeDecoder._isInteger(this._currentChar()) || this._currentChar() === FLAG.DOT) {
