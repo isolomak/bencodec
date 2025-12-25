@@ -1,4 +1,5 @@
 import { BencodeDictionary, BencodeList, BencodeTypes, FLAG, IBencodecOptions } from './types';
+import { BencodeDecodeError, BencodeErrorCode } from './errors';
 import { Buffer } from 'node:buffer';
 
 export class BencodeDecoder {
@@ -19,7 +20,7 @@ export class BencodeDecoder {
 	 */
 	constructor(data: Buffer | string, options?: IBencodecOptions) {
 		if (!data) {
-			throw new Error('Nothing to decode');
+			throw new BencodeDecodeError(BencodeErrorCode.EMPTY_INPUT, 'Nothing to decode');
 		}
 
 		this._index = 0;
@@ -41,7 +42,7 @@ export class BencodeDecoder {
 	 */
 	public decode(): BencodeTypes {
 		if (this._isEOF()) {
-			throw this._error('Unexpected end of data');
+			throw this._decodeError(BencodeErrorCode.UNEXPECTED_END, 'Unexpected end of data');
 		}
 
 		if (BencodeDecoder._isInteger(this._currentChar())) {
@@ -60,7 +61,7 @@ export class BencodeDecoder {
 			return this._decodeDictionary();
 		}
 
-		throw this._error('Invalid bencode data');
+		throw this._decodeError(BencodeErrorCode.INVALID_FORMAT, 'Invalid bencode data');
 	}
 
 	/**
@@ -81,6 +82,9 @@ export class BencodeDecoder {
 	 * Format character for error message (printable or hex)
 	 */
 	private static _formatChar(char: number): string {
+		if (char === undefined || char === null) {
+			return 'undefined';
+		}
 		if (char >= 0x20 && char <= 0x7e) {
 			return `'${String.fromCharCode(char)}'`;
 		}
@@ -89,14 +93,18 @@ export class BencodeDecoder {
 	}
 
 	/**
-	 * Create error with position context
+	 * Create decode error with position context
 	 */
-	private _error(message: string): Error {
+	private _decodeError(code: BencodeErrorCode, message: string): BencodeDecodeError {
+		let fullMessage: string;
 		if (this._isEOF()) {
-			return new Error(`${message} at position ${this._index}`);
+			fullMessage = `${message} at position ${this._index}`;
+		}
+		else {
+			fullMessage = `${message} at position ${this._index} (found ${BencodeDecoder._formatChar(this._currentChar())})`;
 		}
 
-		return new Error(`${message} at position ${this._index} (found ${BencodeDecoder._formatChar(this._currentChar())})`);
+		return new BencodeDecodeError(code, fullMessage, this._index);
 	}
 
 	/**
@@ -113,7 +121,7 @@ export class BencodeDecoder {
 		const length = this._decodeInteger();
 
 		if (this._index + length > this._buffer.length) {
-			throw this._error(`Unexpected end of data: expected ${length} bytes for string`);
+			throw this._decodeError(BencodeErrorCode.UNEXPECTED_END, `Unexpected end of data: expected ${length} bytes for string`);
 		}
 
 		const acc = [];
@@ -152,7 +160,7 @@ export class BencodeDecoder {
 
 		// Check for leading zeros (only for bencode integers, not string lengths)
 		if (isBencodeInteger && this._currentChar() === 0x30 && BencodeDecoder._isInteger(this._buffer[this._index + 1])) {
-			throw this._error('Invalid bencode: leading zeros are not allowed');
+			throw this._decodeError(BencodeErrorCode.LEADING_ZEROS, 'Invalid bencode: leading zeros are not allowed');
 		}
 
 		while (BencodeDecoder._isInteger(this._currentChar()) || this._currentChar() === FLAG.DOT) {
@@ -167,7 +175,7 @@ export class BencodeDecoder {
 
 		if (isBencodeInteger) {
 			if (this._isEOF() || this._currentChar() !== FLAG.END) {
-				throw this._error('Unexpected end of data: expected \'e\' to terminate integer');
+				throw this._decodeError(BencodeErrorCode.UNEXPECTED_END, 'Unexpected end of data: expected \'e\' to terminate integer');
 			}
 			this._index++;
 		}
@@ -176,7 +184,7 @@ export class BencodeDecoder {
 		}
 
 		if (sign === -1 && integer === 0) {
-			throw this._error('Invalid bencode: negative zero is not allowed');
+			throw this._decodeError(BencodeErrorCode.NEGATIVE_ZERO, 'Invalid bencode: negative zero is not allowed');
 		}
 
 		return integer * sign;
@@ -195,7 +203,7 @@ export class BencodeDecoder {
 		}
 
 		if (this._isEOF()) {
-			throw this._error('Unexpected end of data: expected \'e\' to terminate list');
+			throw this._decodeError(BencodeErrorCode.UNEXPECTED_END, 'Unexpected end of data: expected \'e\' to terminate list');
 		}
 		// skip END flag
 		this._next();
@@ -217,7 +225,7 @@ export class BencodeDecoder {
 			const keyBuffer = Buffer.isBuffer(key) ? key : Buffer.from(key);
 
 			if (this._options.strict && prevKey !== null && Buffer.compare(prevKey, keyBuffer) >= 0) {
-				throw this._error(`Invalid bencode: dictionary keys must be in sorted order (key '${key.toString()}' after '${prevKey.toString()}')`);
+				throw this._decodeError(BencodeErrorCode.UNSORTED_KEYS, `Invalid bencode: dictionary keys must be in sorted order (key '${key.toString()}' after '${prevKey.toString()}')`);
 			}
 
 			prevKey = keyBuffer;
@@ -225,7 +233,7 @@ export class BencodeDecoder {
 		}
 
 		if (this._isEOF()) {
-			throw this._error('Unexpected end of data: expected \'e\' to terminate dictionary');
+			throw this._decodeError(BencodeErrorCode.UNEXPECTED_END, 'Unexpected end of data: expected \'e\' to terminate dictionary');
 		}
 		// skip END flag
 		this._next();

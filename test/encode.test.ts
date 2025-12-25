@@ -1,10 +1,40 @@
 import * as assert from 'assert';
-import { encode } from '../src/index';
+import { encode, BencodeEncodeError, BencodeErrorCode } from '../src/index';
 
 describe('Bencode encoder test', () => {
-	test('should throw error if type is not supported', () => {
+	test('should throw BencodeEncodeError with UNSUPPORTED_TYPE code for unsupported type', () => {
 		// @ts-ignore - for testing purposes
-		expect(() => encode(() => { })).toThrow(Error);
+		expect(() => encode(() => { })).toThrow(BencodeEncodeError);
+
+		try {
+			// @ts-ignore - for testing purposes
+			encode(() => { });
+		}
+		catch (error) {
+			expect(error).toBeInstanceOf(BencodeEncodeError);
+			expect((error as BencodeEncodeError).code).toBe(BencodeErrorCode.UNSUPPORTED_TYPE);
+			// path is empty array for top-level errors
+			expect((error as BencodeEncodeError).path).toEqual([]);
+		}
+	});
+
+	test('should include path for unsupported type in nested structure', () => {
+		const obj = {
+			valid: 'data',
+			nested: {
+				// @ts-ignore - for testing purposes
+				invalid: () => {},
+			},
+		};
+
+		try {
+			encode(obj);
+		}
+		catch (error) {
+			expect(error).toBeInstanceOf(BencodeEncodeError);
+			expect((error as BencodeEncodeError).code).toBe(BencodeErrorCode.UNSUPPORTED_TYPE);
+			expect((error as BencodeEncodeError).path).toEqual([ 'nested', 'invalid' ]);
+		}
 	});
 
 	describe('Buffer tests', () => {
@@ -196,29 +226,66 @@ describe('Bencode encoder test', () => {
 	});
 
 	describe('Circular reference tests', () => {
-		test('should throw error for circular reference in dictionary', () => {
+		test('should throw BencodeEncodeError with CIRCULAR_REFERENCE code for circular reference in dictionary', () => {
 			const obj: Record<string, unknown> = { foo: 'bar' };
 			obj.self = obj;
 			expect(() => encode(obj)).toThrow('Circular reference detected');
+
+			try {
+				encode(obj);
+			}
+			catch (error) {
+				expect(error).toBeInstanceOf(BencodeEncodeError);
+				expect((error as BencodeEncodeError).code).toBe(BencodeErrorCode.CIRCULAR_REFERENCE);
+				expect((error as BencodeEncodeError).path).toEqual([ 'self' ]);
+			}
 		});
 
-		test('should throw error for circular reference in list', () => {
+		test('should throw BencodeEncodeError with CIRCULAR_REFERENCE code for circular reference in list', () => {
 			const arr: unknown[] = [ 1, 2 ];
 			arr.push(arr);
 			expect(() => encode(arr)).toThrow('Circular reference detected');
+
+			try {
+				encode(arr);
+			}
+			catch (error) {
+				expect(error).toBeInstanceOf(BencodeEncodeError);
+				expect((error as BencodeEncodeError).code).toBe(BencodeErrorCode.CIRCULAR_REFERENCE);
+				expect((error as BencodeEncodeError).path).toEqual([ 2 ]);
+			}
 		});
 
-		test('should throw error for nested circular reference', () => {
+		test('should throw BencodeEncodeError with path for nested circular reference', () => {
 			const obj: Record<string, unknown> = { foo: 'bar' };
 			obj.nested = { inner: obj };
 			expect(() => encode(obj)).toThrow('Circular reference detected');
+
+			try {
+				encode(obj);
+			}
+			catch (error) {
+				expect(error).toBeInstanceOf(BencodeEncodeError);
+				expect((error as BencodeEncodeError).code).toBe(BencodeErrorCode.CIRCULAR_REFERENCE);
+				expect((error as BencodeEncodeError).path).toEqual([ 'nested', 'inner' ]);
+			}
 		});
 
-		test('should throw error for circular reference between list and dictionary', () => {
+		test('should throw BencodeEncodeError with path for circular reference between list and dictionary', () => {
 			const obj: Record<string, unknown> = { foo: 'bar' };
 			const arr: unknown[] = [ obj ];
 			obj.list = arr;
 			expect(() => encode(obj)).toThrow('Circular reference detected');
+
+			try {
+				encode(obj);
+			}
+			catch (error) {
+				expect(error).toBeInstanceOf(BencodeEncodeError);
+				expect((error as BencodeEncodeError).code).toBe(BencodeErrorCode.CIRCULAR_REFERENCE);
+				// The circular reference is detected at 'list' -> [0] -> back to obj
+				expect((error as BencodeEncodeError).path).toEqual([ 'list', 0 ]);
+			}
 		});
 
 		test('should allow same object in different branches', () => {

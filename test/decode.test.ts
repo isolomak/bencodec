@@ -1,29 +1,58 @@
 import * as assert from 'assert';
-import { decode } from '../src/index';
+import { decode, BencodeDecodeError, BencodeErrorCode } from '../src/index';
 
 describe('Bencode decoder tests', () => {
-	test('should throw error if data to decode is not provided', () => {
+	test('should throw BencodeDecodeError with EMPTY_INPUT code if data to decode is not provided', () => {
 		// @ts-ignore - for testing purposes
-		expect(() => decode()).toThrow(Error);
+		expect(() => decode()).toThrow(BencodeDecodeError);
 		// @ts-ignore - for testing purposes
-		expect(() => decode(null)).toThrow(Error);
+		expect(() => decode(null)).toThrow(BencodeDecodeError);
 		// @ts-ignore - for testing purposes
-		expect(() => decode(undefined)).toThrow(Error);
+		expect(() => decode(undefined)).toThrow(BencodeDecodeError);
+
+		try {
+			// @ts-ignore - for testing purposes
+			decode(undefined);
+		}
+		catch (error) {
+			expect(error).toBeInstanceOf(BencodeDecodeError);
+			expect((error as BencodeDecodeError).code).toBe(BencodeErrorCode.EMPTY_INPUT);
+			expect((error as BencodeDecodeError).position).toBeUndefined();
+		}
 	});
 
-	test('should throw error if invalid data to decode is provided', () => {
-		expect(() => decode('asd')).toThrow(Error);
+	test('should throw BencodeDecodeError with INVALID_FORMAT code for invalid data', () => {
+		expect(() => decode('asd')).toThrow(BencodeDecodeError);
 		// @ts-ignore - for testing purposes
-		expect(() => decode(42)).toThrow(Error);
+		expect(() => decode(42)).toThrow(BencodeDecodeError);
 		// @ts-ignore - for testing purposes
-		expect(() => decode([ 42 ])).toThrow(Error);
+		expect(() => decode([ 42 ])).toThrow(BencodeDecodeError);
 		// @ts-ignore - for testing purposes
-		expect(() => decode({ baz: 42 })).toThrow(Error);
+		expect(() => decode({ baz: 42 })).toThrow(BencodeDecodeError);
 		// @ts-ignore - for testing purposes
-		expect(() => decode(() => { })).toThrow(Error);
+		expect(() => decode(() => { })).toThrow(BencodeDecodeError);
+
+		try {
+			decode('asd');
+		}
+		catch (error) {
+			expect(error).toBeInstanceOf(BencodeDecodeError);
+			expect((error as BencodeDecodeError).code).toBe(BencodeErrorCode.INVALID_FORMAT);
+			expect((error as BencodeDecodeError).position).toBe(0);
+		}
+
+		// Test with non-printable character (triggers hex formatting in error message)
+		try {
+			decode(Buffer.from([ 0x01 ])); // SOH character (non-printable)
+		}
+		catch (error) {
+			expect(error).toBeInstanceOf(BencodeDecodeError);
+			expect((error as BencodeDecodeError).code).toBe(BencodeErrorCode.INVALID_FORMAT);
+			expect((error as BencodeDecodeError).message).toContain('0x01');
+		}
 	});
 
-	test('should throw error on unexpected end of data', () => {
+	test('should throw BencodeDecodeError with UNEXPECTED_END code on unexpected end of data', () => {
 		// List without end marker
 		expect(() => decode('li42')).toThrow('Unexpected end of data');
 		// Dictionary without end marker
@@ -38,6 +67,15 @@ describe('Bencode decoder tests', () => {
 		expect(() => decode('d1:ad1:bi1e')).toThrow('Unexpected end of data');
 		// String length exceeds buffer
 		expect(() => decode('100:abc')).toThrow('Unexpected end of data');
+
+		try {
+			decode('li42');
+		}
+		catch (error) {
+			expect(error).toBeInstanceOf(BencodeDecodeError);
+			expect((error as BencodeDecodeError).code).toBe(BencodeErrorCode.UNEXPECTED_END);
+			expect((error as BencodeDecodeError).position).toBeDefined();
+		}
 	});
 
 	describe('Buffer tests', () => {
@@ -115,14 +153,31 @@ describe('Bencode decoder tests', () => {
 			assert.strictEqual(result, 0);
 		});
 
-		test('should throw error for negative zero', () => {
+		test('should throw BencodeDecodeError with NEGATIVE_ZERO code for negative zero', () => {
 			expect(() => decode('i-0e')).toThrow('Invalid bencode: negative zero is not allowed');
+
+			try {
+				decode('i-0e');
+			}
+			catch (error) {
+				expect(error).toBeInstanceOf(BencodeDecodeError);
+				expect((error as BencodeDecodeError).code).toBe(BencodeErrorCode.NEGATIVE_ZERO);
+			}
 		});
 
-		test('should throw error for leading zeros', () => {
+		test('should throw BencodeDecodeError with LEADING_ZEROS code for leading zeros', () => {
 			expect(() => decode('i03e')).toThrow('Invalid bencode: leading zeros are not allowed');
 			expect(() => decode('i007e')).toThrow('Invalid bencode: leading zeros are not allowed');
 			expect(() => decode('i-03e')).toThrow('Invalid bencode: leading zeros are not allowed');
+
+			try {
+				decode('i03e');
+			}
+			catch (error) {
+				expect(error).toBeInstanceOf(BencodeDecodeError);
+				expect((error as BencodeDecodeError).code).toBe(BencodeErrorCode.LEADING_ZEROS);
+				expect((error as BencodeDecodeError).position).toBe(1);
+			}
 		});
 
 		test('should decode float as int', () => {
@@ -230,16 +285,32 @@ describe('Bencode decoder tests', () => {
 			assert.deepStrictEqual(result, { a: 1, b: 2, c: 3 });
 		});
 
-		test('should throw error for unsorted dictionary keys in strict mode', () => {
+		test('should throw BencodeDecodeError with UNSORTED_KEYS code for unsorted dictionary keys in strict mode', () => {
 			// Keys 'b', 'a' are not in sorted order
 			expect(() => decode('d1:bi1e1:ai2ee', { strict: true }))
 				.toThrow('Invalid bencode: dictionary keys must be in sorted order');
+
+			try {
+				decode('d1:bi1e1:ai2ee', { strict: true });
+			}
+			catch (error) {
+				expect(error).toBeInstanceOf(BencodeDecodeError);
+				expect((error as BencodeDecodeError).code).toBe(BencodeErrorCode.UNSORTED_KEYS);
+			}
 		});
 
-		test('should throw error for duplicate dictionary keys in strict mode', () => {
+		test('should throw BencodeDecodeError with UNSORTED_KEYS code for duplicate dictionary keys in strict mode', () => {
 			// Duplicate key 'a'
 			expect(() => decode('d1:ai1e1:ai2ee', { strict: true }))
 				.toThrow('Invalid bencode: dictionary keys must be in sorted order');
+
+			try {
+				decode('d1:ai1e1:ai2ee', { strict: true });
+			}
+			catch (error) {
+				expect(error).toBeInstanceOf(BencodeDecodeError);
+				expect((error as BencodeDecodeError).code).toBe(BencodeErrorCode.UNSORTED_KEYS);
+			}
 		});
 
 		test('should accept unsorted dictionary keys without strict mode', () => {
@@ -260,24 +331,58 @@ describe('Bencode decoder tests', () => {
 				.toThrow('Invalid bencode: dictionary keys must be in sorted order');
 		});
 
-		test('should throw error for trailing data after integer in strict mode', () => {
+		test('should throw BencodeDecodeError with TRAILING_DATA code for trailing data after integer in strict mode', () => {
 			expect(() => decode('i42ei99e', { strict: true }))
 				.toThrow('Invalid bencode: unexpected data after valid bencode');
+
+			try {
+				decode('i42ei99e', { strict: true });
+			}
+			catch (error) {
+				expect(error).toBeInstanceOf(BencodeDecodeError);
+				expect((error as BencodeDecodeError).code).toBe(BencodeErrorCode.TRAILING_DATA);
+				// position is undefined for trailing data errors
+				expect((error as BencodeDecodeError).position).toBeUndefined();
+			}
 		});
 
-		test('should throw error for trailing data after string in strict mode', () => {
+		test('should throw BencodeDecodeError with TRAILING_DATA code for trailing data after string in strict mode', () => {
 			expect(() => decode('4:spamextra', { strict: true }))
 				.toThrow('Invalid bencode: unexpected data after valid bencode');
+
+			try {
+				decode('4:spamextra', { strict: true });
+			}
+			catch (error) {
+				expect(error).toBeInstanceOf(BencodeDecodeError);
+				expect((error as BencodeDecodeError).code).toBe(BencodeErrorCode.TRAILING_DATA);
+			}
 		});
 
-		test('should throw error for trailing data after list in strict mode', () => {
+		test('should throw BencodeDecodeError with TRAILING_DATA code for trailing data after list in strict mode', () => {
 			expect(() => decode('li1eei2e', { strict: true }))
 				.toThrow('Invalid bencode: unexpected data after valid bencode');
+
+			try {
+				decode('li1eei2e', { strict: true });
+			}
+			catch (error) {
+				expect(error).toBeInstanceOf(BencodeDecodeError);
+				expect((error as BencodeDecodeError).code).toBe(BencodeErrorCode.TRAILING_DATA);
+			}
 		});
 
-		test('should throw error for trailing data after dictionary in strict mode', () => {
+		test('should throw BencodeDecodeError with TRAILING_DATA code for trailing data after dictionary in strict mode', () => {
 			expect(() => decode('d1:ai1eei2e', { strict: true }))
 				.toThrow('Invalid bencode: unexpected data after valid bencode');
+
+			try {
+				decode('d1:ai1eei2e', { strict: true });
+			}
+			catch (error) {
+				expect(error).toBeInstanceOf(BencodeDecodeError);
+				expect((error as BencodeDecodeError).code).toBe(BencodeErrorCode.TRAILING_DATA);
+			}
 		});
 
 		test('should ignore trailing data without strict mode', () => {

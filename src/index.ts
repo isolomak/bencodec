@@ -1,9 +1,11 @@
 import { BencodeDecoder } from './BencodeDecoder';
 import { BencodeEncoder } from './BencodeEncoder';
 import { EncodeSupportedTypes, IBencodecOptions } from './types';
+import { BencodeDecodeError, BencodeErrorCode } from './errors';
 import { Buffer } from 'node:buffer';
 
 export * from './types';
+export * from './errors';
 
 /**
  * Decode string or buffer
@@ -13,7 +15,7 @@ export function decode<Type = unknown>(data: Buffer | string, options?: IBencode
 	const result = decoder.decode();
 
 	if (options?.strict && decoder.hasRemainingData()) {
-		throw new Error('Invalid bencode: unexpected data after valid bencode');
+		throw new BencodeDecodeError(BencodeErrorCode.TRAILING_DATA, 'Invalid bencode: unexpected data after valid bencode');
 	}
 
 	return result as Type;

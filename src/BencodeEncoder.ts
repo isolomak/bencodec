@@ -1,4 +1,5 @@
 import { BencodeDictionary, BencodeList, EncodeSupportedTypes, FLAG, IBencodecOptions } from './types';
+import { BencodeEncodeError, BencodeErrorCode } from './errors';
 import { Buffer } from 'node:buffer';
 
 export class BencodeEncoder {
@@ -12,6 +13,7 @@ export class BencodeEncoder {
 	private readonly _buffer: Array<Uint8Array>;
 	private readonly _options: IBencodecOptions;
 	private readonly _visited: WeakSet<object>;
+	private readonly _path: (string | number)[];
 
 	/**
 	 * Constructor
@@ -20,6 +22,7 @@ export class BencodeEncoder {
 		this._buffer = [];
 		this._options = options || { };
 		this._visited = new WeakSet();
+		this._path = [];
 	}
 
 	/**
@@ -62,7 +65,11 @@ export class BencodeEncoder {
 			return this._encodeDictionary(data as BencodeDictionary);
 		}
 
-		throw new Error(`${typeof data} is unsupported type.`);
+		throw new BencodeEncodeError(
+			BencodeErrorCode.UNSUPPORTED_TYPE,
+			`${typeof data} is unsupported type.`,
+			[ ...this._path ],
+		);
 	}
 
 	/**
@@ -103,17 +110,24 @@ export class BencodeEncoder {
 	 */
 	private _encodeList(data: BencodeList): void {
 		if (this._visited.has(data)) {
-			throw new Error('Circular reference detected');
+			throw new BencodeEncodeError(
+				BencodeErrorCode.CIRCULAR_REFERENCE,
+				'Circular reference detected',
+				[ ...this._path ],
+			);
 		}
 		this._visited.add(data);
 
 		this._buffer.push(this._listIdentifier);
 
-		for (const item of data) {
+		for (let i = 0; i < data.length; i++) {
+			const item = data[i];
 			if (item === null || item === undefined) {
 				continue;
 			}
+			this._path.push(i);
 			this._encodeType(item);
+			this._path.pop();
 		}
 
 		this._buffer.push(this._endIdentifier);
@@ -125,7 +139,11 @@ export class BencodeEncoder {
 	 */
 	private _encodeDictionary(data: BencodeDictionary): void {
 		if (this._visited.has(data)) {
-			throw new Error('Circular reference detected');
+			throw new BencodeEncodeError(
+				BencodeErrorCode.CIRCULAR_REFERENCE,
+				'Circular reference detected',
+				[ ...this._path ],
+			);
 		}
 		this._visited.add(data);
 
@@ -139,7 +157,9 @@ export class BencodeEncoder {
 			}
 
 			this._encodeString(key);
+			this._path.push(key);
 			this._encodeType(data[key]);
+			this._path.pop();
 		}
 
 		this._buffer.push(this._endIdentifier);
