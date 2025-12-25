@@ -12,6 +12,7 @@ export class BencodeDecoder {
 	}
 
 	private _index: number;
+	private _currentDepth: number;
 	private readonly _buffer: Buffer;
 	private readonly _options: IBencodecOptions;
 
@@ -24,6 +25,7 @@ export class BencodeDecoder {
 		}
 
 		this._index = 0;
+		this._currentDepth = 0;
 		this._options = options || { };
 		this._buffer = typeof data === 'string'
 			? Buffer.from(data)
@@ -35,6 +37,13 @@ export class BencodeDecoder {
 	 */
 	public hasRemainingData(): boolean {
 		return this._index < this._buffer.length;
+	}
+
+	/**
+	 * Get current position in the buffer for error reporting
+	 */
+	public getCurrentPosition(): number {
+		return this._index;
 	}
 
 	/**
@@ -120,6 +129,10 @@ export class BencodeDecoder {
 	private _decodeString(): Buffer | string {
 		const length = this._decodeInteger();
 
+		if (this._options.maxStringLength && length > this._options.maxStringLength) {
+			throw new BencodeDecodeError(BencodeErrorCode.MAX_SIZE_EXCEEDED, `String length ${length} exceeds maximum ${this._options.maxStringLength}`, this._index);
+		}
+
 		if (this._index + length > this._buffer.length) {
 			throw this._decodeError(BencodeErrorCode.UNEXPECTED_END, `Unexpected end of data: expected ${length} bytes for string`);
 		}
@@ -194,6 +207,11 @@ export class BencodeDecoder {
 	 * Decode bencoded list
 	 */
 	private _decodeList(): BencodeDecodedList {
+		this._currentDepth++;
+		if (this._options.maxDepth && this._currentDepth > this._options.maxDepth) {
+			throw new BencodeDecodeError(BencodeErrorCode.MAX_DEPTH_EXCEEDED, `Nesting depth ${this._currentDepth} exceeds maximum ${this._options.maxDepth}`, this._index);
+		}
+
 		const acc = [];
 		// skip LIST flag
 		this._next();
@@ -203,10 +221,12 @@ export class BencodeDecoder {
 		}
 
 		if (this._isEOF()) {
+			this._currentDepth--;
 			throw this._decodeError(BencodeErrorCode.UNEXPECTED_END, 'Unexpected end of data: expected \'e\' to terminate list');
 		}
 		// skip END flag
 		this._next();
+		this._currentDepth--;
 
 		return acc;
 	}
@@ -215,6 +235,11 @@ export class BencodeDecoder {
 	 * Decode bencoded dictionary
 	 */
 	private _decodeDictionary(): BencodeDecodedDictionary {
+		this._currentDepth++;
+		if (this._options.maxDepth && this._currentDepth > this._options.maxDepth) {
+			throw new BencodeDecodeError(BencodeErrorCode.MAX_DEPTH_EXCEEDED, `Nesting depth ${this._currentDepth} exceeds maximum ${this._options.maxDepth}`, this._index);
+		}
+
 		const acc: BencodeDecodedDictionary = { };
 		let prevKey: Buffer | null = null;
 		// skip DICTIONARY flag
@@ -233,10 +258,12 @@ export class BencodeDecoder {
 		}
 
 		if (this._isEOF()) {
+			this._currentDepth--;
 			throw this._decodeError(BencodeErrorCode.UNEXPECTED_END, 'Unexpected end of data: expected \'e\' to terminate dictionary');
 		}
 		// skip END flag
 		this._next();
+		this._currentDepth--;
 
 		return acc;
 	}

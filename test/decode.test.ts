@@ -390,4 +390,86 @@ describe('Bencode decoder tests', () => {
 			assert.strictEqual(result, 42);
 		});
 	});
+
+	describe('Security limit tests', () => {
+		test('should throw BencodeDecodeError with MAX_SIZE_EXCEEDED code when string exceeds maxStringLength', () => {
+			expect(() => decode('10:helloworld', { maxStringLength: 5 }))
+				.toThrow('String length 10 exceeds maximum 5');
+
+			try {
+				decode('10:helloworld', { maxStringLength: 5 });
+			}
+			catch (error) {
+				expect(error).toBeInstanceOf(BencodeDecodeError);
+				expect((error as BencodeDecodeError).code).toBe(BencodeErrorCode.MAX_SIZE_EXCEEDED);
+				expect((error as BencodeDecodeError).position).toBeDefined();
+			}
+		});
+
+		test('should allow string within maxStringLength limit', () => {
+			const result = decode('5:hello', { maxStringLength: 10 });
+			assert.deepStrictEqual(result, Buffer.from('hello'));
+		});
+
+		test('should throw BencodeDecodeError with MAX_DEPTH_EXCEEDED code when list nesting exceeds maxDepth', () => {
+			// Nested list: llli1eeee (depth 3)
+			expect(() => decode('llli1eeee', { maxDepth: 2 }))
+				.toThrow('Nesting depth 3 exceeds maximum 2');
+
+			try {
+				decode('llli1eeee', { maxDepth: 2 });
+			}
+			catch (error) {
+				expect(error).toBeInstanceOf(BencodeDecodeError);
+				expect((error as BencodeDecodeError).code).toBe(BencodeErrorCode.MAX_DEPTH_EXCEEDED);
+				expect((error as BencodeDecodeError).position).toBeDefined();
+			}
+		});
+
+		test('should throw BencodeDecodeError with MAX_DEPTH_EXCEEDED code when dictionary nesting exceeds maxDepth', () => {
+			// Nested dictionary: d1:ad1:bd1:ci1eeee (depth 3)
+			expect(() => decode('d1:ad1:bd1:ci1eeee', { maxDepth: 2 }))
+				.toThrow('Nesting depth 3 exceeds maximum 2');
+
+			try {
+				decode('d1:ad1:bd1:ci1eeee', { maxDepth: 2 });
+			}
+			catch (error) {
+				expect(error).toBeInstanceOf(BencodeDecodeError);
+				expect((error as BencodeDecodeError).code).toBe(BencodeErrorCode.MAX_DEPTH_EXCEEDED);
+				expect((error as BencodeDecodeError).position).toBeDefined();
+			}
+		});
+
+		test('should allow nesting within maxDepth limit', () => {
+			// List depth 2
+			const listResult = decode('lli1eee', { maxDepth: 2 });
+			assert.deepStrictEqual(listResult, [[ 1 ]]);
+
+			// Dictionary depth 2
+			const dictResult = decode('d1:ad1:bi1eee', { maxDepth: 2 });
+			assert.deepStrictEqual(dictResult, { a: { b: 1 } });
+		});
+
+		test('should count mixed list and dictionary nesting for maxDepth', () => {
+			// d1:ali1eee - dict containing list (depth 2)
+			const result = decode('d1:ali1eee', { maxDepth: 2 });
+			assert.deepStrictEqual(result, { a: [ 1 ] });
+
+			// d1:alli1eeee - dict containing list containing list (depth 3)
+			expect(() => decode('d1:alli1eeee', { maxDepth: 2 }))
+				.toThrow('Nesting depth 3 exceeds maximum 2');
+		});
+	});
+
+	describe('BencodeDecoder.getCurrentPosition() tests', () => {
+		test('should expose getCurrentPosition method through decoder', () => {
+			// Import BencodeDecoder directly to test getCurrentPosition
+			const { BencodeDecoder } = require('../src/BencodeDecoder');
+			const decoder = new BencodeDecoder('i42e');
+			assert.strictEqual(decoder.getCurrentPosition(), 0);
+			decoder.decode();
+			assert.strictEqual(decoder.getCurrentPosition(), 4);
+		});
+	});
 });
