@@ -2,6 +2,7 @@ export default {
 	preset: 'ts-jest/presets/default-esm',
 	testEnvironment: 'node',
 	verbose: true,
+	testPathIgnorePatterns: [ '/node_modules/', '/test/deno/', '/test/bun/', '/test/node/' ],
 	collectCoverage: true,
 	reporters: [ 'default' ],
 	extensionsToTreatAsEsm: [ '.ts' ],
