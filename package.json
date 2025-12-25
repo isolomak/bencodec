@@ -1,6 +1,6 @@
 {
   "name": "bencodec",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Universal library for decoding and encoding bencode data",
   "type": "module",
   "main": "./lib/index.cjs",
