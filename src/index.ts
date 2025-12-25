@@ -1,6 +1,6 @@
 import { BencodeDecoder } from './BencodeDecoder';
 import { BencodeEncoder } from './BencodeEncoder';
-import { EncodeSupportedTypes, IBencodecOptions } from './types';
+import { BencodeEncodableValue, IBencodecOptions } from './types';
 import { BencodeDecodeError, BencodeErrorCode } from './errors';
 import { Buffer } from 'node:buffer';
 
@@ -24,7 +24,7 @@ export function decode<Type = unknown>(data: Buffer | string, options?: IBencode
 /**
  * Encode data
  */
-export function encode(data: EncodeSupportedTypes, options?: IBencodecOptions): Buffer | string {
+export function encode(data: BencodeEncodableValue, options?: IBencodecOptions): Buffer | string {
 	const encoder = new BencodeEncoder(options);
 
 	return encoder.encode(data);

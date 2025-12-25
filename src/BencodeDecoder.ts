@@ -1,4 +1,4 @@
-import { BencodeDictionary, BencodeList, BencodeTypes, FLAG, IBencodecOptions } from './types';
+import { BencodeDecodedDictionary, BencodeDecodedList, BencodeDecodedValue, FLAG, IBencodecOptions } from './types';
 import { BencodeDecodeError, BencodeErrorCode } from './errors';
 import { Buffer } from 'node:buffer';
 
@@ -40,7 +40,7 @@ export class BencodeDecoder {
 	/**
 	 * Decode bencoded data
 	 */
-	public decode(): BencodeTypes {
+	public decode(): BencodeDecodedValue {
 		if (this._isEOF()) {
 			throw this._decodeError(BencodeErrorCode.UNEXPECTED_END, 'Unexpected end of data');
 		}
@@ -193,7 +193,7 @@ export class BencodeDecoder {
 	/**
 	 * Decode bencoded list
 	 */
-	private _decodeList(): BencodeList {
+	private _decodeList(): BencodeDecodedList {
 		const acc = [];
 		// skip LIST flag
 		this._next();
@@ -214,8 +214,8 @@ export class BencodeDecoder {
 	/**
 	 * Decode bencoded dictionary
 	 */
-	private _decodeDictionary(): BencodeDictionary {
-		const acc: BencodeDictionary = { };
+	private _decodeDictionary(): BencodeDecodedDictionary {
+		const acc: BencodeDecodedDictionary = { };
 		let prevKey: Buffer | null = null;
 		// skip DICTIONARY flag
 		this._next();

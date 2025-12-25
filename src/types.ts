@@ -4,6 +4,8 @@ export interface IBencodecOptions {
 	stringify?: boolean;
 	strict?: boolean;
 	encoding?: BufferEncoding;
+	maxStringLength?: number;
+	maxDepth?: number;
 }
 
 export enum FLAG {
@@ -17,10 +19,25 @@ export enum FLAG {
 	DOT = 0x2e, // '.'
 }
 
-export type BencodeList = Array<BencodeTypes>;
+// Decoder output types (strict)
+export type BencodeDecodedList = Array<BencodeDecodedValue>;
 
-export type BencodeDictionary = { [key: string]: BencodeTypes };
+export type BencodeDecodedDictionary = { [key: string]: BencodeDecodedValue };
 
-export type BencodeTypes = string | number | Buffer | BencodeDictionary | BencodeList | object;
+export type BencodeDecodedValue = number | Buffer | string | BencodeDecodedList | BencodeDecodedDictionary;
 
-export type EncodeSupportedTypes = BencodeTypes | ArrayBuffer | ArrayBufferView | Boolean;
+// Encoder input types (permissive)
+export type BencodeEncodableList = Array<BencodeEncodableValue>;
+
+export type BencodeEncodableDictionary = { [key: string]: BencodeEncodableValue };
+
+export type BencodeEncodableValue = number
+	| boolean
+	| string
+	| Buffer
+	| ArrayBuffer
+	| ArrayBufferView
+	| BencodeEncodableList
+	| BencodeEncodableDictionary
+	| null
+	| undefined;

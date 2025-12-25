@@ -1,4 +1,4 @@
-import { BencodeDictionary, BencodeList, EncodeSupportedTypes, FLAG, IBencodecOptions } from './types';
+import { BencodeEncodableDictionary, BencodeEncodableList, BencodeEncodableValue, FLAG, IBencodecOptions } from './types';
 import { BencodeEncodeError, BencodeErrorCode } from './errors';
 import { Buffer } from 'node:buffer';
 
@@ -28,7 +28,7 @@ export class BencodeEncoder {
 	/**
 	 * Encode data
 	 */
-	public encode(data: EncodeSupportedTypes): Buffer | string {
+	public encode(data: BencodeEncodableValue): Buffer | string {
 		this._encodeType(data);
 
 		return this._options.stringify
@@ -39,7 +39,7 @@ export class BencodeEncoder {
 	/**
 	 * Encode data by type
 	 */
-	private _encodeType(data: EncodeSupportedTypes): void {
+	private _encodeType(data: BencodeEncodableValue): void {
 		if (Buffer.isBuffer(data)) {
 			return this._encodeBuffer(data);
 		}
@@ -62,7 +62,7 @@ export class BencodeEncoder {
 			return this._encodeString(data);
 		}
 		if (typeof data === 'object') {
-			return this._encodeDictionary(data as BencodeDictionary);
+			return this._encodeDictionary(data as BencodeEncodableDictionary);
 		}
 
 		throw new BencodeEncodeError(
@@ -108,7 +108,7 @@ export class BencodeEncoder {
 	/**
 	 * Encode list
 	 */
-	private _encodeList(data: BencodeList): void {
+	private _encodeList(data: BencodeEncodableList): void {
 		if (this._visited.has(data)) {
 			throw new BencodeEncodeError(
 				BencodeErrorCode.CIRCULAR_REFERENCE,
@@ -137,7 +137,7 @@ export class BencodeEncoder {
 	/**
 	 * Encode dictionary
 	 */
-	private _encodeDictionary(data: BencodeDictionary): void {
+	private _encodeDictionary(data: BencodeEncodableDictionary): void {
 		if (this._visited.has(data)) {
 			throw new BencodeEncodeError(
 				BencodeErrorCode.CIRCULAR_REFERENCE,

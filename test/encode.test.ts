@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { encode, BencodeEncodeError, BencodeErrorCode } from '../src/index';
+import { encode, BencodeEncodeError, BencodeErrorCode, BencodeEncodableValue } from '../src/index';
 
 describe('Bencode encoder test', () => {
 	test('should throw BencodeEncodeError with UNSUPPORTED_TYPE code for unsupported type', () => {
@@ -22,13 +22,12 @@ describe('Bencode encoder test', () => {
 		const obj = {
 			valid: 'data',
 			nested: {
-				// @ts-ignore - for testing purposes
-				invalid: () => {},
+				invalid: (): void => { /* empty */ },
 			},
 		};
 
 		try {
-			encode(obj);
+			encode(obj as unknown as BencodeEncodableValue);
 		}
 		catch (error) {
 			expect(error).toBeInstanceOf(BencodeEncodeError);
@@ -229,10 +228,10 @@ describe('Bencode encoder test', () => {
 		test('should throw BencodeEncodeError with CIRCULAR_REFERENCE code for circular reference in dictionary', () => {
 			const obj: Record<string, unknown> = { foo: 'bar' };
 			obj.self = obj;
-			expect(() => encode(obj)).toThrow('Circular reference detected');
+			expect(() => encode(obj as unknown as BencodeEncodableValue)).toThrow('Circular reference detected');
 
 			try {
-				encode(obj);
+				encode(obj as unknown as BencodeEncodableValue);
 			}
 			catch (error) {
 				expect(error).toBeInstanceOf(BencodeEncodeError);
@@ -244,10 +243,10 @@ describe('Bencode encoder test', () => {
 		test('should throw BencodeEncodeError with CIRCULAR_REFERENCE code for circular reference in list', () => {
 			const arr: unknown[] = [ 1, 2 ];
 			arr.push(arr);
-			expect(() => encode(arr)).toThrow('Circular reference detected');
+			expect(() => encode(arr as unknown as BencodeEncodableValue)).toThrow('Circular reference detected');
 
 			try {
-				encode(arr);
+				encode(arr as unknown as BencodeEncodableValue);
 			}
 			catch (error) {
 				expect(error).toBeInstanceOf(BencodeEncodeError);
@@ -259,10 +258,10 @@ describe('Bencode encoder test', () => {
 		test('should throw BencodeEncodeError with path for nested circular reference', () => {
 			const obj: Record<string, unknown> = { foo: 'bar' };
 			obj.nested = { inner: obj };
-			expect(() => encode(obj)).toThrow('Circular reference detected');
+			expect(() => encode(obj as unknown as BencodeEncodableValue)).toThrow('Circular reference detected');
 
 			try {
-				encode(obj);
+				encode(obj as unknown as BencodeEncodableValue);
 			}
 			catch (error) {
 				expect(error).toBeInstanceOf(BencodeEncodeError);
@@ -275,10 +274,10 @@ describe('Bencode encoder test', () => {
 			const obj: Record<string, unknown> = { foo: 'bar' };
 			const arr: unknown[] = [ obj ];
 			obj.list = arr;
-			expect(() => encode(obj)).toThrow('Circular reference detected');
+			expect(() => encode(obj as unknown as BencodeEncodableValue)).toThrow('Circular reference detected');
 
 			try {
-				encode(obj);
+				encode(obj as unknown as BencodeEncodableValue);
 			}
 			catch (error) {
 				expect(error).toBeInstanceOf(BencodeEncodeError);
