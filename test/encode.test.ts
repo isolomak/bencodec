@@ -1,5 +1,5 @@
 import * as assert from 'assert';
-import { encode, BencodeEncodeError, BencodeErrorCode, BencodeEncodableValue } from '../src/index';
+import { encode, BencodeEncodeError, BencodeErrorCode } from '../src/index';
 import { Bytes } from '../src/bytes';
 
 describe('Bencode encoder test', () => {
