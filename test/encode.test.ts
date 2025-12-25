@@ -28,7 +28,7 @@ describe('Bencode encoder test', () => {
 		};
 
 		try {
-			encode(obj as unknown as BencodeEncodableValue);
+			encode(obj);
 		}
 		catch (error) {
 			expect(error).toBeInstanceOf(BencodeEncodeError);
@@ -229,10 +229,10 @@ describe('Bencode encoder test', () => {
 		test('should throw BencodeEncodeError with CIRCULAR_REFERENCE code for circular reference in dictionary', () => {
 			const obj: Record<string, unknown> = { foo: 'bar' };
 			obj.self = obj;
-			expect(() => encode(obj as unknown as BencodeEncodableValue)).toThrow('Circular reference detected');
+			expect(() => encode(obj)).toThrow('Circular reference detected');
 
 			try {
-				encode(obj as unknown as BencodeEncodableValue);
+				encode(obj);
 			}
 			catch (error) {
 				expect(error).toBeInstanceOf(BencodeEncodeError);
@@ -244,10 +244,10 @@ describe('Bencode encoder test', () => {
 		test('should throw BencodeEncodeError with CIRCULAR_REFERENCE code for circular reference in list', () => {
 			const arr: unknown[] = [ 1, 2 ];
 			arr.push(arr);
-			expect(() => encode(arr as unknown as BencodeEncodableValue)).toThrow('Circular reference detected');
+			expect(() => encode(arr)).toThrow('Circular reference detected');
 
 			try {
-				encode(arr as unknown as BencodeEncodableValue);
+				encode(arr);
 			}
 			catch (error) {
 				expect(error).toBeInstanceOf(BencodeEncodeError);
@@ -259,10 +259,10 @@ describe('Bencode encoder test', () => {
 		test('should throw BencodeEncodeError with path for nested circular reference', () => {
 			const obj: Record<string, unknown> = { foo: 'bar' };
 			obj.nested = { inner: obj };
-			expect(() => encode(obj as unknown as BencodeEncodableValue)).toThrow('Circular reference detected');
+			expect(() => encode(obj)).toThrow('Circular reference detected');
 
 			try {
-				encode(obj as unknown as BencodeEncodableValue);
+				encode(obj);
 			}
 			catch (error) {
 				expect(error).toBeInstanceOf(BencodeEncodeError);
@@ -275,10 +275,10 @@ describe('Bencode encoder test', () => {
 			const obj: Record<string, unknown> = { foo: 'bar' };
 			const arr: unknown[] = [ obj ];
 			obj.list = arr;
-			expect(() => encode(obj as unknown as BencodeEncodableValue)).toThrow('Circular reference detected');
+			expect(() => encode(obj)).toThrow('Circular reference detected');
 
 			try {
-				encode(obj as unknown as BencodeEncodableValue);
+				encode(obj);
 			}
 			catch (error) {
 				expect(error).toBeInstanceOf(BencodeEncodeError);
@@ -293,6 +293,57 @@ describe('Bencode encoder test', () => {
 			const obj = { a: shared, b: shared };
 			const result = encode(obj);
 			assert.deepStrictEqual(result, Bytes.fromString('d1:ad5:valuei42ee1:bd5:valuei42eee'));
+		});
+	});
+
+	describe('Type compatibility', () => {
+		test('should accept interfaces without index signatures', () => {
+			// This tests the generic overload that allows typed interfaces
+			interface IRawRpcMessage {
+				t: Uint8Array;
+				y: string;
+				q?: string;
+				a?: { id: string };
+			}
+
+			const message: IRawRpcMessage = {
+				t: Bytes.fromString('abc'),
+				y: 'q',
+				q: 'ping',
+			};
+
+			// This should compile without errors (no type assertion needed)
+			const result = encode(message, { stringify: true });
+			expect(result).toBe('d1:q4:ping1:t3:abc1:y1:qe');
+		});
+
+		test('should accept nested interfaces', () => {
+			interface Inner {
+				value: number;
+			}
+			interface Outer {
+				name: string;
+				nested: Inner;
+			}
+
+			const obj: Outer = {
+				name: 'test',
+				nested: { value: 42 },
+			};
+
+			const result = encode(obj, { stringify: true });
+			expect(result).toBe('d4:name4:test6:nestedd5:valuei42eee');
+		});
+
+		test('should accept interfaces with optional properties', () => {
+			interface Config {
+				required: string;
+				optional?: number;
+			}
+
+			const config: Config = { required: 'value' };
+			const result = encode(config, { stringify: true });
+			expect(result).toBe('d8:required5:valuee');
 		});
 	});
 });

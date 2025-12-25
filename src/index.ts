@@ -143,6 +143,8 @@ export function decode<Type = unknown>(data: Uint8Array | string, options?: IBen
  * Dictionary keys are automatically sorted lexicographically (by raw byte value)
  * to comply with the bencode specification. The original key order is not preserved.
  */
+export function encode<T extends object>(data: T, options?: IBencodecOptions): Uint8Array | string;
+export function encode(data: BencodeEncodableValue, options?: IBencodecOptions): Uint8Array | string;
 export function encode(data: BencodeEncodableValue, options?: IBencodecOptions): Uint8Array | string {
 	const encoder = new BencodeEncoder(options);
 
