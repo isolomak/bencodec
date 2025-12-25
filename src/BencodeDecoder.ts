@@ -1,6 +1,6 @@
 import { BencodeDecodedDictionary, BencodeDecodedList, BencodeDecodedValue, FLAG, IBencodecOptions } from './types';
 import { BencodeDecodeError, BencodeErrorCode } from './errors';
-import { Buffer } from 'node:buffer';
+import { Bytes } from './bytes';
 
 /**
  * Stateful decoder for bencode-formatted data.
@@ -68,7 +68,7 @@ export class BencodeDecoder {
 	private _currentDepth: number;
 
 	/** The buffer containing bencode data to decode */
-	private readonly _buffer: Buffer;
+	private readonly _buffer: Uint8Array;
 
 	/** Decoding options */
 	private readonly _options: IBencodecOptions;
@@ -76,7 +76,7 @@ export class BencodeDecoder {
 	/**
 	 * Creates a new BencodeDecoder instance.
 	 *
-	 * @param data - The bencode data to decode. Strings are converted to Buffers internally.
+	 * @param data - The bencode data to decode. Strings are converted to Uint8Array internally.
 	 * @param options - Configuration options for decoding behavior.
 	 *
 	 * @throws {BencodeDecodeError} With code `EMPTY_INPUT` if data is empty or falsy.
@@ -86,14 +86,14 @@ export class BencodeDecoder {
 	 * // From string
 	 * const decoder = new BencodeDecoder('i42e');
 	 *
-	 * // From Buffer
-	 * const decoder = new BencodeDecoder(Buffer.from('i42e'));
+	 * // From Uint8Array
+	 * const decoder = new BencodeDecoder(new Uint8Array([0x69, 0x34, 0x32, 0x65]));
 	 *
 	 * // With options
 	 * const decoder = new BencodeDecoder(data, { stringify: true, strict: true });
 	 * ```
 	 */
-	public constructor(data: Buffer | string, options?: IBencodecOptions) {
+	public constructor(data: Uint8Array | string, options?: IBencodecOptions) {
 		if (!data) {
 			throw new BencodeDecodeError(BencodeErrorCode.EMPTY_INPUT, 'Nothing to decode');
 		}
@@ -102,7 +102,7 @@ export class BencodeDecoder {
 		this._currentDepth = 0;
 		this._options = options || { };
 		this._buffer = typeof data === 'string'
-			? Buffer.from(data)
+			? Bytes.fromString(data)
 			: data;
 	}
 
@@ -153,7 +153,7 @@ export class BencodeDecoder {
 	 *
 	 * @returns The decoded JavaScript value:
 	 *   - Bencode integers → `number`
-	 *   - Bencode strings → `Buffer` (default) or `string` (if `stringify: true`)
+	 *   - Bencode strings → `Uint8Array` (default) or `string` (if `stringify: true`)
 	 *   - Bencode lists → `BencodeDecodedList`
 	 *   - Bencode dictionaries → `BencodeDecodedDictionary`
 	 *
@@ -275,14 +275,14 @@ export class BencodeDecoder {
 	 * Decodes a bencode string value.
 	 *
 	 * Bencode strings are formatted as `<length>:<content>` where length is a
-	 * non-negative integer. The content is returned as a Buffer by default,
+	 * non-negative integer. The content is returned as a Uint8Array by default,
 	 * or as a string if the `stringify` option is enabled.
 	 *
-	 * @returns The decoded string as a Buffer or string.
+	 * @returns The decoded string as a Uint8Array or string.
 	 * @throws {BencodeDecodeError} With code `MAX_SIZE_EXCEEDED` if length exceeds `maxStringLength`.
 	 * @throws {BencodeDecodeError} With code `UNEXPECTED_END` if buffer doesn't contain enough bytes.
 	 */
-	private _decodeString(): Buffer | string {
+	private _decodeString(): Uint8Array | string {
 		const length = this._decodeInteger();
 
 		if (this._options.maxStringLength && length > this._options.maxStringLength) {
@@ -293,15 +293,15 @@ export class BencodeDecoder {
 			throw this._decodeError(BencodeErrorCode.UNEXPECTED_END, `Unexpected end of data: expected ${length} bytes for string`);
 		}
 
-		const acc = [];
+		const bytes = new Uint8Array(length);
 
 		for (let i = 0; i < length; i++) {
-			acc.push(this._next());
+			bytes[i] = this._next();
 		}
 
 		return this._options.stringify
-			? Buffer.from(acc).toString(this._options.encoding || 'utf8')
-			: Buffer.from(acc);
+			? Bytes.toString(bytes, this._options.encoding || 'utf8')
+			: bytes;
 	}
 
 	/**
@@ -426,20 +426,22 @@ export class BencodeDecoder {
 		}
 
 		const acc: BencodeDecodedDictionary = { };
-		let prevKey: Buffer | null = null;
+		let prevKey: Uint8Array | null = null;
 		// skip DICTIONARY flag
 		this._next();
 
 		while (!this._isEOF() && this._currentChar() !== FLAG.END) {
 			const key = this._decodeString();
-			const keyBuffer = Buffer.isBuffer(key) ? key : Buffer.from(key);
+			const keyBytes = Bytes.isBytes(key) ? key : Bytes.fromString(key);
 
-			if (this._options.strict && prevKey !== null && Buffer.compare(prevKey, keyBuffer) >= 0) {
-				throw this._decodeError(BencodeErrorCode.UNSORTED_KEYS, `Invalid bencode: dictionary keys must be in sorted order (key '${key.toString()}' after '${prevKey.toString()}')`);
+			if (this._options.strict && prevKey !== null && Bytes.compare(prevKey, keyBytes) >= 0) {
+				const keyStr = typeof key === 'string' ? key : Bytes.toString(key);
+				const prevKeyStr = Bytes.toString(prevKey);
+				throw this._decodeError(BencodeErrorCode.UNSORTED_KEYS, `Invalid bencode: dictionary keys must be in sorted order (key '${keyStr}' after '${prevKeyStr}')`);
 			}
 
-			prevKey = keyBuffer;
-			acc[key.toString()] = this.decode();
+			prevKey = keyBytes;
+			acc[typeof key === 'string' ? key : Bytes.toString(key)] = this.decode();
 		}
 
 		if (this._isEOF()) {

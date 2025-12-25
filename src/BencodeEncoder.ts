@@ -1,6 +1,6 @@
 import { BencodeEncodableDictionary, BencodeEncodableList, BencodeEncodableValue, FLAG, IBencodecOptions } from './types';
 import { BencodeEncodeError, BencodeErrorCode } from './errors';
-import { Buffer } from 'node:buffer';
+import { Bytes } from './bytes';
 
 /**
  * Encoder for converting JavaScript values to bencode format.
@@ -9,7 +9,7 @@ import { Buffer } from 'node:buffer';
  * {@link https://wiki.theory.org/index.php/BitTorrentSpecification#Bencoding | BitTorrent specification}.
  *
  * The encoder builds output by concatenating Uint8Array chunks for each bencode type,
- * then returns the result as a Buffer or string.
+ * then returns the result as a Uint8Array or string.
  *
  * @example
  * ```typescript
@@ -33,7 +33,7 @@ import { Buffer } from 'node:buffer';
  * - `number` - Encoded as bencode integer (floats truncated toward zero)
  * - `boolean` - Encoded as bencode integer (`true` → `i1e`, `false` → `i0e`)
  * - `string` - Encoded as bencode string
- * - `Buffer` / `ArrayBuffer` / `ArrayBufferView` - Encoded as bencode string (raw bytes)
+ * - `Uint8Array` / `ArrayBuffer` / `ArrayBufferView` - Encoded as bencode string (raw bytes)
  * - `Array` - Encoded as bencode list
  * - `Object` - Encoded as bencode dictionary (keys auto-sorted)
  * - `null` / `undefined` - Silently skipped in lists and dictionaries
@@ -45,19 +45,19 @@ import { Buffer } from 'node:buffer';
 export class BencodeEncoder {
 
 	/** Bencode integer start marker: 'i' */
-	private _integerIdentifier = Buffer.from([ FLAG.INTEGER ]);
+	private readonly _integerIdentifier = new Uint8Array([ FLAG.INTEGER ]);
 
 	/** Bencode string delimiter: ':' */
-	private _stringDelimiterIdentifier = Buffer.from([ FLAG.STR_DELIMITER ]);
+	private readonly _stringDelimiterIdentifier = new Uint8Array([ FLAG.STR_DELIMITER ]);
 
 	/** Bencode list start marker: 'l' */
-	private _listIdentifier = Buffer.from([ FLAG.LIST ]);
+	private readonly _listIdentifier = new Uint8Array([ FLAG.LIST ]);
 
 	/** Bencode dictionary start marker: 'd' */
-	private _dictionaryIdentifier = Buffer.from([ FLAG.DICTIONARY ]);
+	private readonly _dictionaryIdentifier = new Uint8Array([ FLAG.DICTIONARY ]);
 
 	/** Bencode end marker: 'e' */
-	private _endIdentifier = Buffer.from([ FLAG.END ]);
+	private readonly _endIdentifier = new Uint8Array([ FLAG.END ]);
 
 	/** Accumulator for encoded data chunks */
 	private readonly _buffer: Array<Uint8Array>;
@@ -78,10 +78,10 @@ export class BencodeEncoder {
 	 *
 	 * @example
 	 * ```typescript
-	 * // Default options (returns Buffer)
+	 * // Default options (returns Uint8Array)
 	 * const encoder = new BencodeEncoder();
 	 *
-	 * // Return string instead of Buffer
+	 * // Return string instead of Uint8Array
 	 * const encoder = new BencodeEncoder({ stringify: true });
 	 * ```
 	 */
@@ -97,7 +97,7 @@ export class BencodeEncoder {
 	 *
 	 * @param data - The value to encode. See {@link BencodeEncodableValue} for supported types.
 	 *
-	 * @returns The bencode-encoded data as a Buffer (default) or string (if `stringify: true`).
+	 * @returns The bencode-encoded data as a Uint8Array (default) or string (if `stringify: true`).
 	 *
 	 * @throws {BencodeEncodeError} With code `UNSUPPORTED_TYPE` if the value contains an
 	 *   unsupported type (e.g., functions, symbols, BigInt).
@@ -108,18 +108,18 @@ export class BencodeEncoder {
 	 * ```typescript
 	 * const encoder = new BencodeEncoder();
 	 *
-	 * encoder.encode(42);              // <Buffer 69 34 32 65> ('i42e')
-	 * encoder.encode('hello');         // <Buffer 35 3a 68 65 6c 6c 6f> ('5:hello')
-	 * encoder.encode([1, 2]);          // <Buffer ...> ('li1ei2ee')
-	 * encoder.encode({ a: 1 });        // <Buffer ...> ('d1:ai1ee')
+	 * encoder.encode(42);              // Uint8Array [0x69, 0x34, 0x32, 0x65] ('i42e')
+	 * encoder.encode('hello');         // Uint8Array [0x35, 0x3a, 0x68, 0x65, 0x6c, 0x6c, 0x6f] ('5:hello')
+	 * encoder.encode([1, 2]);          // Uint8Array [...] ('li1ei2ee')
+	 * encoder.encode({ a: 1 });        // Uint8Array [...] ('d1:ai1ee')
 	 * ```
 	 */
-	public encode(data: BencodeEncodableValue): Buffer | string {
+	public encode(data: BencodeEncodableValue): Uint8Array | string {
 		this._encodeType(data);
 
 		return this._options.stringify
-			? Buffer.concat(this._buffer).toString('utf8')
-			: Buffer.concat(this._buffer);
+			? Bytes.toString(Bytes.concat(this._buffer))
+			: Bytes.concat(this._buffer);
 	}
 
 	/**
@@ -127,23 +127,23 @@ export class BencodeEncoder {
 	 *
 	 * Determines the JavaScript type of the input and calls the corresponding
 	 * encoder method. Type detection order matters for correct handling of
-	 * Buffer vs ArrayBufferView vs generic object.
+	 * Uint8Array vs ArrayBufferView vs generic object.
 	 *
 	 * @param data - The value to encode.
 	 * @throws {BencodeEncodeError} With code `UNSUPPORTED_TYPE` for unsupported types.
 	 */
 	private _encodeType(data: BencodeEncodableValue): void {
-		if (Buffer.isBuffer(data)) {
-			return this._encodeBuffer(data);
+		if (Bytes.isBytes(data)) {
+			return this._encodeBytes(data);
 		}
 		if (Array.isArray(data)) {
 			return this._encodeList(data);
 		}
 		if (ArrayBuffer.isView(data)) {
-			return this._encodeBuffer(Buffer.from(data.buffer, data.byteOffset, data.byteLength));
+			return this._encodeBytes(new Uint8Array(data.buffer, data.byteOffset, data.byteLength));
 		}
 		if (data instanceof ArrayBuffer) {
-			return this._encodeBuffer(Buffer.from(data));
+			return this._encodeBytes(new Uint8Array(data));
 		}
 		if (typeof data === 'boolean') {
 			return this._encodeInteger(data ? 1 : 0);
@@ -166,16 +166,16 @@ export class BencodeEncoder {
 	}
 
 	/**
-	 * Encodes a Buffer as a bencode string.
+	 * Encodes a Uint8Array as a bencode string.
 	 *
 	 * Bencode strings are formatted as `<length>:<content>` where length is the
 	 * byte length of the content.
 	 *
-	 * @param data - The Buffer to encode.
+	 * @param data - The Uint8Array to encode.
 	 */
-	private _encodeBuffer(data: Buffer): void {
+	private _encodeBytes(data: Uint8Array): void {
 		this._buffer.push(
-			Buffer.from(String(data.length)),
+			Bytes.fromString(String(data.length)),
 			this._stringDelimiterIdentifier,
 			data,
 		);
@@ -190,10 +190,11 @@ export class BencodeEncoder {
 	 * @param data - The string to encode.
 	 */
 	private _encodeString(data: string): void {
+		const encoded = Bytes.fromString(data);
 		this._buffer.push(
-			Buffer.from(String(Buffer.byteLength(data))),
+			Bytes.fromString(String(encoded.length)),
 			this._stringDelimiterIdentifier,
-			Buffer.from(data),
+			encoded,
 		);
 	}
 
@@ -208,7 +209,7 @@ export class BencodeEncoder {
 	private _encodeInteger(data: number): void {
 		this._buffer.push(
 			this._integerIdentifier,
-			Buffer.from(String(Math.trunc(data))),
+			Bytes.fromString(String(Math.trunc(data))),
 			this._endIdentifier,
 		);
 	}

@@ -1,5 +1,6 @@
 import * as assert from 'assert';
 import { decode, BencodeDecodeError, BencodeErrorCode } from '../src/index';
+import { Bytes } from '../src/bytes';
 
 describe('Bencode decoder tests', () => {
 	test('should throw BencodeDecodeError with EMPTY_INPUT code if data to decode is not provided', () => {
@@ -43,7 +44,7 @@ describe('Bencode decoder tests', () => {
 
 		// Test with non-printable character (triggers hex formatting in error message)
 		try {
-			decode(Buffer.from([ 0x01 ])); // SOH character (non-printable)
+			decode(new Uint8Array([ 0x01 ])); // SOH character (non-printable)
 		}
 		catch (error) {
 			expect(error).toBeInstanceOf(BencodeDecodeError);
@@ -78,14 +79,14 @@ describe('Bencode decoder tests', () => {
 		}
 	});
 
-	describe('Buffer tests', () => {
-		test('should decode buffered string', () => {
-			const result = decode(Buffer.from('0:'));
-			assert.deepStrictEqual(result, Buffer.from(''));
+	describe('Uint8Array tests', () => {
+		test('should decode Uint8Array string', () => {
+			const result = decode(Bytes.fromString('0:'));
+			assert.deepStrictEqual(result, new Uint8Array([]));
 		});
 
-		test('should decode buffered number', () => {
-			const result = decode(Buffer.from('i42e'));
+		test('should decode Uint8Array number', () => {
+			const result = decode(Bytes.fromString('i42e'));
 			assert.deepStrictEqual(result, 42);
 		});
 	});
@@ -93,18 +94,18 @@ describe('Bencode decoder tests', () => {
 	describe('String tests', () => {
 		test('should decode empty string', () => {
 			const result = decode('0:');
-			assert.deepStrictEqual(result, Buffer.from(''));
+			assert.deepStrictEqual(result, new Uint8Array([]));
 		});
 
 		test('should handle malformed string without delimiter', () => {
 			// Malformed input without ':' - parser reads number then bytes from current position
 			const result = decode('4spam');
-			assert.deepStrictEqual(result, Buffer.from('spam'));
+			assert.deepStrictEqual(result, Bytes.fromString('spam'));
 		});
 
 		test('should decode string', () => {
 			const result = decode('4:spam');
-			assert.deepStrictEqual(result, Buffer.from('spam'));
+			assert.deepStrictEqual(result, Bytes.fromString('spam'));
 		});
 
 		test('should decode string with stringify option', () => {
@@ -114,21 +115,16 @@ describe('Bencode decoder tests', () => {
 
 		test('should decode string with custom encoding', () => {
 			// Test latin1 encoding preserves high bytes
-			const binaryData = Buffer.from([ 0xB4, 0xFF, 0x80, 0x00 ]);
-			const encoded = Buffer.concat([ Buffer.from('4:'), binaryData ]);
+			const binaryData = new Uint8Array([ 0xB4, 0xFF, 0x80, 0x00 ]);
+			const encoded = Bytes.concat([ Bytes.fromString('4:'), binaryData ]);
 			const result = decode(encoded, { stringify: true, encoding: 'latin1' }) as string;
-			const resultBuffer = Buffer.from(result, 'latin1');
-			assert.deepStrictEqual(resultBuffer, binaryData);
+			const resultBytes = Bytes.fromString(result, 'latin1');
+			assert.deepStrictEqual(resultBytes, binaryData);
 		});
 
 		test('should default to utf8 encoding when not specified', () => {
 			const result = decode('4:spam', { stringify: true });
 			assert.strictEqual(result, 'spam');
-		});
-
-		test('should support hex encoding', () => {
-			const result = decode('4:spam', { stringify: true, encoding: 'hex' });
-			assert.strictEqual(result, '7370616d');
 		});
 	});
 
@@ -204,32 +200,32 @@ describe('Bencode decoder tests', () => {
 
 	describe('List tests', () => {
 		test('should decode empty list', () => {
-			const result = decode('le') as Array<any>;
+			const result = decode('le') as Array<unknown>;
 			assert.deepStrictEqual(result, []);
 		});
 
 		test('should decode list of strings', () => {
-			const result = decode('l4:spam3:bare') as Array<any>;
-			assert.deepStrictEqual(result, [ Buffer.from('spam'), Buffer.from('bar') ]);
+			const result = decode('l4:spam3:bare') as Array<unknown>;
+			assert.deepStrictEqual(result, [ Bytes.fromString('spam'), Bytes.fromString('bar') ]);
 		});
 
 		test('should decode list of integers', () => {
-			const result = decode('li42ei-42ei42.2ei-42.2ei0ee') as Array<any>;
+			const result = decode('li42ei-42ei42.2ei-42.2ei0ee') as Array<unknown>;
 			assert.deepStrictEqual(result, [
 				42, -42, 42, -42, 0,
 			]);
 		});
 
 		test('should decode list with string and integer', () => {
-			const result = decode('l4:spami42ee') as Array<any>;
-			assert.deepStrictEqual(result, [ Buffer.from('spam'), 42 ]);
+			const result = decode('l4:spami42ee') as Array<unknown>;
+			assert.deepStrictEqual(result, [ Bytes.fromString('spam'), 42 ]);
 		});
 
 		test('should decode list of lists with integers and strings', () => {
-			const result = decode('ll4:spam3:bareli42ei-42ei42.2ei-42.2ei0eee') as Array<any>;
+			const result = decode('ll4:spam3:bareli42ei-42ei42.2ei-42.2ei0eee') as Array<unknown>;
 
 			assert.deepStrictEqual(result, [
-				[ Buffer.from('spam'), Buffer.from('bar') ],
+				[ Bytes.fromString('spam'), Bytes.fromString('bar') ],
 				[
 					42, -42, 42, -42, 0,
 				],
@@ -237,11 +233,11 @@ describe('Bencode decoder tests', () => {
 		});
 
 		test('should decode list of dictionaries with integers and strings', () => {
-			const result = decode('ld3:foo4:spam3:bari42eed3:baz4:test3:vazi-42eee') as Array<any>;
+			const result = decode('ld3:foo4:spam3:bari42eed3:baz4:test3:vazi-42eee') as Array<unknown>;
 
 			assert.deepStrictEqual(result, [
-				{ foo: Buffer.from('spam'), bar: 42 },
-				{ baz: Buffer.from('test'), vaz: -42 },
+				{ foo: Bytes.fromString('spam'), bar: 42 },
+				{ baz: Bytes.fromString('test'), vaz: -42 },
 			]);
 		});
 	});
@@ -254,7 +250,7 @@ describe('Bencode decoder tests', () => {
 
 		test('should decode dictionary with string', () => {
 			const result = decode('d3:bar4:spame');
-			assert.deepStrictEqual(result, { bar: Buffer.from('spam') });
+			assert.deepStrictEqual(result, { bar: Bytes.fromString('spam') });
 		});
 
 		test('should decode dictionary with integer', () => {
@@ -264,17 +260,17 @@ describe('Bencode decoder tests', () => {
 
 		test('should decode dictionary with string and integer', () => {
 			const result = decode('d3:foo4:spam3:bari42ee');
-			assert.deepStrictEqual(result, { foo: Buffer.from('spam'), bar: 42 });
+			assert.deepStrictEqual(result, { foo: Bytes.fromString('spam'), bar: 42 });
 		});
 
 		test('should decode dictionary with list', () => {
 			const result = decode('d3:barl4:spami42eee');
-			assert.deepStrictEqual(result, { bar: [ Buffer.from('spam'), 42 ] });
+			assert.deepStrictEqual(result, { bar: [ Bytes.fromString('spam'), 42 ] });
 		});
 
 		test('should decode dictionary with dictionary', () => {
 			const result = decode('d3:bard3:cow4:spamee');
-			assert.deepStrictEqual(result, { bar: { cow: Buffer.from('spam') } });
+			assert.deepStrictEqual(result, { bar: { cow: Bytes.fromString('spam') } });
 		});
 	});
 
@@ -408,7 +404,7 @@ describe('Bencode decoder tests', () => {
 
 		test('should allow string within maxStringLength limit', () => {
 			const result = decode('5:hello', { maxStringLength: 10 });
-			assert.deepStrictEqual(result, Buffer.from('hello'));
+			assert.deepStrictEqual(result, Bytes.fromString('hello'));
 		});
 
 		test('should throw BencodeDecodeError with MAX_DEPTH_EXCEEDED code when list nesting exceeds maxDepth', () => {
@@ -463,9 +459,9 @@ describe('Bencode decoder tests', () => {
 	});
 
 	describe('BencodeDecoder.getCurrentPosition() tests', () => {
-		test('should expose getCurrentPosition method through decoder', () => {
+		test('should expose getCurrentPosition method through decoder', async () => {
 			// Import BencodeDecoder directly to test getCurrentPosition
-			const { BencodeDecoder } = require('../src/BencodeDecoder');
+			const { BencodeDecoder } = await import('../src/BencodeDecoder');
 			const decoder = new BencodeDecoder('i42e');
 			assert.strictEqual(decoder.getCurrentPosition(), 0);
 			decoder.decode();

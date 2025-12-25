@@ -1,4 +1,4 @@
-import { Buffer } from 'node:buffer';
+import type { ByteEncoding } from './bytes';
 
 /**
  * Configuration options for bencode encoding and decoding operations.
@@ -43,7 +43,7 @@ export interface IBencodecOptions {
 	 *
 	 * @default 'utf8'
 	 */
-	encoding?: BufferEncoding;
+	encoding?: ByteEncoding;
 
 	/**
 	 * Maximum allowed length for decoded strings in bytes.
@@ -107,12 +107,12 @@ export type BencodeDecodedDictionary = { [key: string]: BencodeDecodedValue };
  * Union type representing all possible values returned by the decoder.
  *
  * - `number` - Decoded bencode integers
- * - `Buffer` - Decoded bencode strings (when `stringify: false`, the default)
+ * - `Uint8Array` - Decoded bencode strings (when `stringify: false`, the default)
  * - `string` - Decoded bencode strings (when `stringify: true`)
  * - `BencodeDecodedList` - Decoded bencode lists
  * - `BencodeDecodedDictionary` - Decoded bencode dictionaries
  */
-export type BencodeDecodedValue = number | Buffer | string | BencodeDecodedList | BencodeDecodedDictionary;
+export type BencodeDecodedValue = number | Uint8Array | string | BencodeDecodedList | BencodeDecodedDictionary;
 
 /**
  * An encodable list (array of encodable values).
@@ -138,7 +138,7 @@ export type BencodeEncodableDictionary = { [key: string]: BencodeEncodableValue 
  * - `number` - Encoded as bencode integer. Floats are truncated toward zero.
  * - `boolean` - Encoded as bencode integer (`true` → `i1e`, `false` → `i0e`)
  * - `string` - Encoded as bencode string (UTF-8 byte length prefix)
- * - `Buffer` - Encoded as bencode string (raw bytes)
+ * - `Uint8Array` - Encoded as bencode string (raw bytes)
  * - `ArrayBuffer` - Encoded as bencode string (raw bytes)
  * - `ArrayBufferView` - Encoded as bencode string (e.g., Uint8Array, DataView)
  * - `BencodeEncodableList` - Encoded as bencode list
@@ -158,7 +158,7 @@ export type BencodeEncodableDictionary = { [key: string]: BencodeEncodableValue 
 export type BencodeEncodableValue = number
 	| boolean
 	| string
-	| Buffer
+	| Uint8Array
 	| ArrayBuffer
 	| ArrayBufferView
 	| BencodeEncodableList

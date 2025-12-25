@@ -2,9 +2,9 @@ import { BencodeDecoder } from './BencodeDecoder';
 import { BencodeEncoder } from './BencodeEncoder';
 import { BencodeEncodableValue, IBencodecOptions } from './types';
 import { BencodeDecodeError, BencodeErrorCode } from './errors';
-import { Buffer } from 'node:buffer';
 
-export * from './types';
+export type { IBencodecOptions, BencodeDecodedValue, BencodeEncodableValue } from './types';
+export type { ByteEncoding } from './bytes';
 export * from './errors';
 
 /**
@@ -16,13 +16,13 @@ export * from './errors';
  * @typeParam Type - The expected return type. Defaults to `unknown`. Use with caution as
  *   no runtime validation is performed.
  *
- * @param data - The bencode data to decode. Can be a Buffer or a string (which will be
- *   converted to a Buffer internally).
+ * @param data - The bencode data to decode. Can be a Uint8Array or a string (which will be
+ *   converted to a Uint8Array internally).
  * @param options - Configuration options for decoding behavior.
  *
  * @returns The decoded JavaScript value. The return type depends on the bencode data:
  *   - Bencode integers → `number`
- *   - Bencode strings → `Buffer` (default) or `string` (if `stringify: true`)
+ *   - Bencode strings → `Uint8Array` (default) or `string` (if `stringify: true`)
  *   - Bencode lists → `Array`
  *   - Bencode dictionaries → `Object`
  *
@@ -45,8 +45,8 @@ export * from './errors';
  * // Decode an integer
  * decode('i42e');  // 42
  *
- * // Decode a string (returns Buffer by default)
- * decode('5:hello');  // <Buffer 68 65 6c 6c 6f>
+ * // Decode a string (returns Uint8Array by default)
+ * decode('5:hello');  // Uint8Array [0x68, 0x65, 0x6c, 0x6c, 0x6f]
  *
  * // Decode a string as JavaScript string
  * decode('5:hello', { stringify: true });  // 'hello'
@@ -79,7 +79,7 @@ export * from './errors';
  * These checks are disabled by default for performance and to handle
  * non-compliant data from some BitTorrent clients.
  */
-export function decode<Type = unknown>(data: Buffer | string, options?: IBencodecOptions): Type {
+export function decode<Type = unknown>(data: Uint8Array | string, options?: IBencodecOptions): Type {
 	const decoder = new BencodeDecoder(data, options);
 	const result = decoder.decode();
 
@@ -99,7 +99,7 @@ export function decode<Type = unknown>(data: Buffer | string, options?: IBencode
  * @param data - The value to encode. See {@link BencodeEncodableValue} for supported types.
  * @param options - Configuration options for encoding behavior.
  *
- * @returns The bencode-encoded data as a Buffer (default) or string (if `stringify: true`).
+ * @returns The bencode-encoded data as a Uint8Array (default) or string (if `stringify: true`).
  *
  * @throws {BencodeEncodeError} With code `UNSUPPORTED_TYPE` if the value contains an
  *   unsupported type (e.g., functions, symbols, BigInt).
@@ -111,10 +111,10 @@ export function decode<Type = unknown>(data: Buffer | string, options?: IBencode
  * import { encode } from 'bencodec';
  *
  * // Encode an integer
- * encode(42);  // <Buffer 69 34 32 65> ('i42e')
+ * encode(42);  // Uint8Array [0x69, 0x34, 0x32, 0x65] ('i42e')
  *
  * // Encode a string
- * encode('hello');  // <Buffer 35 3a 68 65 6c 6c 6f> ('5:hello')
+ * encode('hello');  // Uint8Array [0x35, 0x3a, 0x68, 0x65, 0x6c, 0x6c, 0x6f] ('5:hello')
  *
  * // Encode a list
  * encode([1, 2, 3]);  // 'li1ei2ei3ee'
@@ -122,12 +122,12 @@ export function decode<Type = unknown>(data: Buffer | string, options?: IBencode
  * // Encode a dictionary (keys are auto-sorted)
  * encode({ z: 1, a: 2 });  // 'd1:ai2e1:zi1ee' (keys sorted: a, z)
  *
- * // Get result as string instead of Buffer
+ * // Get result as string instead of Uint8Array
  * encode({ foo: 'bar' }, { stringify: true });  // 'd3:foo3:bare'
  *
  * // Encode binary data
- * encode(Buffer.from([0x00, 0xff]));  // '2:\x00\xff'
- * encode(new Uint8Array([1, 2, 3]));  // '3:\x01\x02\x03'
+ * encode(new Uint8Array([0x00, 0xff]));  // '2:\x00\xff'
+ * encode(new Uint8Array([1, 2, 3]));     // '3:\x01\x02\x03'
  * ```
  *
  * @remarks
@@ -143,7 +143,7 @@ export function decode<Type = unknown>(data: Buffer | string, options?: IBencode
  * Dictionary keys are automatically sorted lexicographically (by raw byte value)
  * to comply with the bencode specification. The original key order is not preserved.
  */
-export function encode(data: BencodeEncodableValue, options?: IBencodecOptions): Buffer | string {
+export function encode(data: BencodeEncodableValue, options?: IBencodecOptions): Uint8Array | string {
 	const encoder = new BencodeEncoder(options);
 
 	return encoder.encode(data);

@@ -1,13 +1,29 @@
 {
   "name": "bencodec",
   "version": "3.1.0",
-  "description": "Library for decoding and encoding bencode data",
-  "main": "lib/index.js",
+  "description": "Universal library for decoding and encoding bencode data",
+  "type": "module",
+  "main": "./lib/index.cjs",
+  "module": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./lib/index.d.ts",
+        "default": "./lib/index.js"
+      },
+      "require": {
+        "types": "./lib/index.d.cts",
+        "default": "./lib/index.cjs"
+      }
+    }
+  },
+  "sideEffects": false,
   "scripts": {
-    "build": "./node_modules/.bin/tsc",
+    "build": "tsup",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "test": "npm run lint && ./node_modules/.bin/jest --runInBand",
+    "test": "npm run lint && node --experimental-vm-modules ./node_modules/.bin/jest --runInBand",
     "prepare": "npm run build",
     "prepublishOnly": "npm run lint && npm test"
   },
@@ -20,12 +36,12 @@
     "codec",
     "bittorrent",
     "torrent",
-    "read",
-    "create",
+    "universal",
+    "browser",
+    "deno",
+    "bun",
     "decode",
-    "encode",
-    "parse",
-    "generate"
+    "encode"
   ],
   "author": "isolomak",
   "license": "MIT",
@@ -40,9 +56,9 @@
     "@typescript-eslint/parser": "^8.50.0",
     "jest": "^30.2.0",
     "ts-jest": "^29.4.6",
+    "tsup": "^8.5.1",
     "typescript": "^5.9.3"
   },
-  "types": "./lib/index.d.ts",
   "files": [
     "lib/**/*",
     "LICENSE.md"
