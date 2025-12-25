@@ -165,3 +165,20 @@ export type BencodeEncodableValue = number
 	| BencodeEncodableDictionary
 	| null
 	| undefined;
+
+/**
+ * Configuration options for {@link encodeToString} function.
+ *
+ * @example
+ * ```typescript
+ * const str = encodeToString({ foo: 'bar' }, { encoding: 'latin1' });
+ * ```
+ */
+export interface IBencodeEncodeOptions {
+	/**
+	 * Character encoding for string output.
+	 *
+	 * @default 'utf8'
+	 */
+	encoding?: ByteEncoding;
+}

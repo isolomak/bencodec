@@ -1,6 +1,6 @@
 import * as assert from 'assert';
-import { encode, BencodeEncodeError, BencodeErrorCode } from '../src/index';
-import { Bytes } from '../src/bytes';
+import { encode, encodeToBytes, encodeToString, BencodeEncodeError, BencodeErrorCode } from '../src/index';
+import { Bytes, ByteEncoding } from '../src/bytes';
 
 describe('Bencode encoder test', () => {
 	test('should throw BencodeEncodeError with UNSUPPORTED_TYPE code for unsupported type', () => {
@@ -345,5 +345,178 @@ describe('Bencode encoder test', () => {
 			const result = encode(config, { stringify: true });
 			expect(result).toBe('d8:required5:valuee');
 		});
+	});
+});
+
+describe('encodeToBytes', () => {
+	test('should return Uint8Array', () => {
+		const result = encodeToBytes({ foo: 42 });
+		expect(result).toBeInstanceOf(Uint8Array);
+		assert.deepStrictEqual(result, Bytes.fromString('d3:fooi42ee'));
+	});
+
+	test('should encode integer', () => {
+		const result = encodeToBytes(42);
+		expect(result).toBeInstanceOf(Uint8Array);
+		assert.deepStrictEqual(result, Bytes.fromString('i42e'));
+	});
+
+	test('should encode string', () => {
+		const result = encodeToBytes('hello');
+		expect(result).toBeInstanceOf(Uint8Array);
+		assert.deepStrictEqual(result, Bytes.fromString('5:hello'));
+	});
+
+	test('should encode list', () => {
+		const result = encodeToBytes([ 1, 2, 3 ]);
+		expect(result).toBeInstanceOf(Uint8Array);
+		assert.deepStrictEqual(result, Bytes.fromString('li1ei2ei3ee'));
+	});
+
+	test('should encode dictionary', () => {
+		const result = encodeToBytes({ foo: 'bar' });
+		expect(result).toBeInstanceOf(Uint8Array);
+		assert.deepStrictEqual(result, Bytes.fromString('d3:foo3:bare'));
+	});
+
+	test('should accept typed interfaces', () => {
+		interface Data { name: string; value: number }
+		const data: Data = { name: 'test', value: 42 };
+		const result = encodeToBytes(data);
+		expect(result).toBeInstanceOf(Uint8Array);
+		assert.deepStrictEqual(result, Bytes.fromString('d4:name4:test5:valuei42ee'));
+	});
+
+	test('should throw BencodeEncodeError for circular references', () => {
+		const obj: Record<string, unknown> = { foo: 'bar' };
+		obj.self = obj;
+		expect(() => encodeToBytes(obj)).toThrow(BencodeEncodeError);
+
+		try {
+			encodeToBytes(obj);
+		}
+		catch (error) {
+			expect(error).toBeInstanceOf(BencodeEncodeError);
+			expect((error as BencodeEncodeError).code).toBe(BencodeErrorCode.CIRCULAR_REFERENCE);
+		}
+	});
+
+	test('should throw BencodeEncodeError for unsupported types', () => {
+		// @ts-ignore - for testing purposes
+		expect(() => encodeToBytes(() => { })).toThrow(BencodeEncodeError);
+
+		try {
+			// @ts-ignore - for testing purposes
+			encodeToBytes(() => { });
+		}
+		catch (error) {
+			expect(error).toBeInstanceOf(BencodeEncodeError);
+			expect((error as BencodeEncodeError).code).toBe(BencodeErrorCode.UNSUPPORTED_TYPE);
+		}
+	});
+});
+
+describe('encodeToString', () => {
+	test('should return string with default utf8 encoding', () => {
+		const result = encodeToString({ foo: 42 });
+		expect(typeof result).toBe('string');
+		expect(result).toBe('d3:fooi42ee');
+	});
+
+	test('should encode integer', () => {
+		const result = encodeToString(42);
+		expect(result).toBe('i42e');
+	});
+
+	test('should encode string', () => {
+		const result = encodeToString('hello');
+		expect(result).toBe('5:hello');
+	});
+
+	test('should encode list', () => {
+		const result = encodeToString([ 1, 2, 3 ]);
+		expect(result).toBe('li1ei2ei3ee');
+	});
+
+	test('should encode dictionary', () => {
+		const result = encodeToString({ foo: 'bar' });
+		expect(result).toBe('d3:foo3:bare');
+	});
+
+	test('should support utf8 encoding explicitly', () => {
+		const result = encodeToString({ foo: 'bar' }, { encoding: 'utf8' });
+		expect(result).toBe('d3:foo3:bare');
+	});
+
+	test('should support utf-8 encoding alias', () => {
+		const result = encodeToString({ foo: 'bar' }, { encoding: 'utf-8' });
+		expect(result).toBe('d3:foo3:bare');
+	});
+
+	test('should support latin1 encoding', () => {
+		const result = encodeToString('test', { encoding: 'latin1' });
+		expect(result).toBe('4:test');
+	});
+
+	test('should support binary encoding', () => {
+		const result = encodeToString('test', { encoding: 'binary' });
+		expect(result).toBe('4:test');
+	});
+
+	test('should support ascii encoding', () => {
+		const result = encodeToString('test', { encoding: 'ascii' });
+		expect(result).toBe('4:test');
+	});
+
+	test('should support all ByteEncoding types', () => {
+		const encodings: ByteEncoding[] = [
+			'utf8', 'utf-8', 'latin1', 'binary', 'ascii',
+		];
+		for (const encoding of encodings) {
+			const result = encodeToString('test', { encoding });
+			expect(typeof result).toBe('string');
+			expect(result).toBe('4:test');
+		}
+	});
+
+	test('should handle binary data with latin1 encoding', () => {
+		const bytes = new Uint8Array([ 0x00, 0x01, 0xff ]);
+		const result = encodeToString(bytes, { encoding: 'latin1' });
+		expect(result).toBe('3:\x00\x01\xff');
+	});
+
+	test('should accept typed interfaces', () => {
+		interface Data { name: string; value: number }
+		const data: Data = { name: 'test', value: 42 };
+		const result = encodeToString(data);
+		expect(result).toBe('d4:name4:test5:valuei42ee');
+	});
+
+	test('should throw BencodeEncodeError for circular references', () => {
+		const obj: Record<string, unknown> = { foo: 'bar' };
+		obj.self = obj;
+		expect(() => encodeToString(obj)).toThrow(BencodeEncodeError);
+
+		try {
+			encodeToString(obj);
+		}
+		catch (error) {
+			expect(error).toBeInstanceOf(BencodeEncodeError);
+			expect((error as BencodeEncodeError).code).toBe(BencodeErrorCode.CIRCULAR_REFERENCE);
+		}
+	});
+
+	test('should throw BencodeEncodeError for unsupported types', () => {
+		// @ts-ignore - for testing purposes
+		expect(() => encodeToString(() => { })).toThrow(BencodeEncodeError);
+
+		try {
+			// @ts-ignore - for testing purposes
+			encodeToString(() => { });
+		}
+		catch (error) {
+			expect(error).toBeInstanceOf(BencodeEncodeError);
+			expect((error as BencodeEncodeError).code).toBe(BencodeErrorCode.UNSUPPORTED_TYPE);
+		}
 	});
 });

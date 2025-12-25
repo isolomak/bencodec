@@ -42,13 +42,16 @@ bun add bencodec
 ## Quick Start
 
 ```typescript
-import { encode, decode } from 'bencodec';
+import { encodeToBytes, encodeToString, decode } from 'bencodec';
 
-// Encode JavaScript values to bencode
-const encoded = encode({ announce: 'http://tracker.example.com', info: { name: 'file.txt' } });
+// Encode JavaScript values to bencode (Uint8Array)
+const bytes = encodeToBytes({ announce: 'http://tracker.example.com', info: { name: 'file.txt' } });
+
+// Encode JavaScript values to bencode (string)
+const str = encodeToString({ announce: 'http://tracker.example.com', info: { name: 'file.txt' } });
 
 // Decode bencode data
-const decoded = decode(encoded, { stringify: true });
+const decoded = decode(bytes, { stringify: true });
 // { announce: 'http://tracker.example.com', info: { name: 'file.txt' } }
 ```
 
@@ -84,26 +87,53 @@ const torrent = decode<Torrent>(buffer, { stringify: true });
 
 ### Encoding
 
+#### Encode to Bytes (Uint8Array)
+
+```typescript
+import { encodeToBytes } from 'bencodec';
+
+// Encode integers
+encodeToBytes(42);  // Uint8Array for 'i42e'
+
+// Encode strings
+encodeToBytes('hello');  // Uint8Array for '5:hello'
+
+// Encode lists
+encodeToBytes([1, 2, 3]);  // Uint8Array for 'li1ei2ei3ee'
+
+// Encode dictionaries (keys auto-sorted per spec)
+encodeToBytes({ z: 1, a: 2 });  // Uint8Array for 'd1:ai2e1:zi1ee'
+
+// Encode binary data
+encodeToBytes(new Uint8Array([0x00, 0xff]));
+```
+
+#### Encode to String
+
+```typescript
+import { encodeToString } from 'bencodec';
+
+// Encode to string (UTF-8 by default)
+encodeToString({ foo: 'bar' });  // 'd3:foo3:bare'
+
+// Encode integers
+encodeToString(42);  // 'i42e'
+
+// Use latin1 encoding for binary data preservation
+encodeToString(new Uint8Array([0x00, 0xff]), { encoding: 'latin1' });  // '2:\x00\xff'
+
+// Supported encodings: 'utf8', 'utf-8', 'latin1', 'binary', 'ascii'
+encodeToString({ foo: 42 }, { encoding: 'utf8' });
+```
+
+#### Legacy encode() (Deprecated)
+
 ```typescript
 import { encode } from 'bencodec';
 
-// Encode integers
-encode(42);  // Uint8Array for 'i42e'
-
-// Encode strings
-encode('hello');  // Uint8Array for '5:hello'
-
-// Encode lists
-encode([1, 2, 3]);  // Uint8Array for 'li1ei2ei3ee'
-
-// Encode dictionaries (keys auto-sorted per spec)
-encode({ z: 1, a: 2 });  // Uint8Array for 'd1:ai2e1:zi1ee'
-
-// Get result as string
-encode({ foo: 'bar' }, { stringify: true });  // 'd3:foo3:bare'
-
-// Encode binary data
-encode(new Uint8Array([0x00, 0xff]));
+// Deprecated - use encodeToBytes or encodeToString instead
+encode(42);                        // Returns Uint8Array
+encode({ foo: 'bar' }, { stringify: true });  // Returns string
 ```
 
 ### Default Export
@@ -111,11 +141,14 @@ encode(new Uint8Array([0x00, 0xff]));
 ```typescript
 import bencodec from 'bencodec';
 
-bencodec.encode({ foo: 42 });
+bencodec.encodeToBytes({ foo: 42 });
+bencodec.encodeToString({ foo: 42 });
 bencodec.decode('d3:fooi42ee');
 ```
 
 ### Options
+
+#### Decode Options (IBencodecOptions)
 
 ```typescript
 interface IBencodecOptions {
@@ -133,6 +166,15 @@ interface IBencodecOptions {
 
   /** Maximum nesting depth - security limit */
   maxDepth?: number;
+}
+```
+
+#### Encode to String Options (IBencodeEncodeOptions)
+
+```typescript
+interface IBencodeEncodeOptions {
+  /** Character encoding for output (default: 'utf8') */
+  encoding?: 'utf8' | 'utf-8' | 'latin1' | 'binary' | 'ascii';
 }
 ```
 
@@ -291,6 +333,7 @@ Full TypeScript support with exported types:
 ```typescript
 import type {
   IBencodecOptions,
+  IBencodeEncodeOptions,
   BencodeDecodedValue,
   BencodeEncodableValue,
   ByteEncoding

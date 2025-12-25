@@ -1,9 +1,10 @@
 import { BencodeDecoder } from './BencodeDecoder';
 import { BencodeEncoder } from './BencodeEncoder';
-import { BencodeEncodableValue, IBencodecOptions } from './types';
+import { BencodeEncodableValue, IBencodecOptions, IBencodeEncodeOptions } from './types';
 import { BencodeDecodeError, BencodeErrorCode } from './errors';
+import { Bytes } from './bytes';
 
-export type { IBencodecOptions, BencodeDecodedValue, BencodeEncodableValue } from './types';
+export type { IBencodecOptions, IBencodeEncodeOptions, BencodeDecodedValue, BencodeEncodableValue } from './types';
 export type { ByteEncoding } from './bytes';
 export * from './errors';
 
@@ -96,6 +97,9 @@ export function decode<Type = unknown>(data: Uint8Array | string, options?: IBen
  * Produces bencode-encoded data according to the
  * {@link https://wiki.theory.org/index.php/BitTorrentSpecification#Bencoding | BitTorrent specification}.
  *
+ * @deprecated Use {@link encodeToBytes} for Uint8Array output or {@link encodeToString} for string output.
+ * This function will be removed in a future major version.
+ *
  * @param data - The value to encode. See {@link BencodeEncodableValue} for supported types.
  * @param options - Configuration options for encoding behavior.
  *
@@ -151,5 +155,119 @@ export function encode(data: BencodeEncodableValue, options?: IBencodecOptions):
 	return encoder.encode(data);
 }
 
-export const bencodec = { decode, encode };
+/**
+ * Encodes JavaScript values into bencode format as a Uint8Array.
+ *
+ * Produces bencode-encoded data according to the
+ * {@link https://wiki.theory.org/index.php/BitTorrentSpecification#Bencoding | BitTorrent specification}.
+ *
+ * @param data - The value to encode. See {@link BencodeEncodableValue} for supported types.
+ *
+ * @returns The bencode-encoded data as a Uint8Array.
+ *
+ * @throws {BencodeEncodeError} With code `UNSUPPORTED_TYPE` if the value contains an
+ *   unsupported type (e.g., functions, symbols, BigInt).
+ * @throws {BencodeEncodeError} With code `CIRCULAR_REFERENCE` if the data contains
+ *   circular references.
+ *
+ * @example
+ * ```typescript
+ * import { encodeToBytes } from 'bencodec';
+ *
+ * // Encode an integer
+ * encodeToBytes(42);  // Uint8Array [0x69, 0x34, 0x32, 0x65] ('i42e')
+ *
+ * // Encode a string
+ * encodeToBytes('hello');  // Uint8Array [0x35, 0x3a, 0x68, 0x65, 0x6c, 0x6c, 0x6f] ('5:hello')
+ *
+ * // Encode a dictionary
+ * encodeToBytes({ foo: 'bar' });  // Uint8Array for 'd3:foo3:bare'
+ *
+ * // Encode binary data
+ * encodeToBytes(new Uint8Array([0x00, 0xff]));  // Uint8Array for '2:\x00\xff'
+ * ```
+ *
+ * @remarks
+ * **Non-standard behaviors:**
+ * - **Boolean encoding**: Booleans are encoded as integers (`true` → `i1e`, `false` → `i0e`).
+ * - **Float truncation**: Floating-point numbers are truncated toward zero before encoding.
+ * - **Null/undefined handling**: `null` and `undefined` values are silently skipped
+ *   in lists and dictionaries. They cannot be encoded as top-level values.
+ *
+ * **Dictionary key sorting:**
+ * Dictionary keys are automatically sorted lexicographically (by raw byte value)
+ * to comply with the bencode specification.
+ */
+export function encodeToBytes<T extends object>(data: T): Uint8Array;
+export function encodeToBytes(data: BencodeEncodableValue): Uint8Array;
+export function encodeToBytes(data: BencodeEncodableValue): Uint8Array {
+	const encoder = new BencodeEncoder();
+
+	return encoder.encode(data) as Uint8Array;
+}
+
+/**
+ * Encodes JavaScript values into bencode format as a string.
+ *
+ * Produces bencode-encoded data according to the
+ * {@link https://wiki.theory.org/index.php/BitTorrentSpecification#Bencoding | BitTorrent specification}.
+ *
+ * @param data - The value to encode. See {@link BencodeEncodableValue} for supported types.
+ * @param options - Configuration options for encoding behavior.
+ *   Use `options.encoding` to specify the character encoding (default: `'utf8'`).
+ *   Supported encodings: `'utf8'`, `'utf-8'`, `'latin1'`, `'binary'`, `'ascii'`.
+ *
+ * @returns The bencode-encoded data as a string.
+ *
+ * @throws {BencodeEncodeError} With code `UNSUPPORTED_TYPE` if the value contains an
+ *   unsupported type (e.g., functions, symbols, BigInt).
+ * @throws {BencodeEncodeError} With code `CIRCULAR_REFERENCE` if the data contains
+ *   circular references.
+ *
+ * @example
+ * ```typescript
+ * import { encodeToString } from 'bencodec';
+ *
+ * // Encode an integer
+ * encodeToString(42);  // 'i42e'
+ *
+ * // Encode a string
+ * encodeToString('hello');  // '5:hello'
+ *
+ * // Encode a dictionary
+ * encodeToString({ foo: 'bar' });  // 'd3:foo3:bare'
+ *
+ * // Use latin1 encoding for binary data
+ * encodeToString(new Uint8Array([0x00, 0xff]), { encoding: 'latin1' });  // '2:\x00\xff'
+ *
+ * // Specify encoding explicitly
+ * encodeToString({ foo: 42 }, { encoding: 'utf8' });  // 'd3:fooi42ee'
+ * ```
+ *
+ * @remarks
+ * **Non-standard behaviors:**
+ * - **Boolean encoding**: Booleans are encoded as integers (`true` → `i1e`, `false` → `i0e`).
+ * - **Float truncation**: Floating-point numbers are truncated toward zero before encoding.
+ * - **Null/undefined handling**: `null` and `undefined` values are silently skipped
+ *   in lists and dictionaries. They cannot be encoded as top-level values.
+ *
+ * **Dictionary key sorting:**
+ * Dictionary keys are automatically sorted lexicographically (by raw byte value)
+ * to comply with the bencode specification.
+ *
+ * **Encoding note:**
+ * For binary data containing non-UTF8 bytes, use `{ encoding: 'latin1' }` or `{ encoding: 'binary' }`
+ * to preserve byte values in the output string.
+ */
+export function encodeToString<T extends object>(data: T, options?: IBencodeEncodeOptions): string;
+export function encodeToString(data: BencodeEncodableValue, options?: IBencodeEncodeOptions): string;
+export function encodeToString(data: BencodeEncodableValue, options?: IBencodeEncodeOptions): string {
+	const encoding = options?.encoding ?? 'utf8';
+	const encoder = new BencodeEncoder({ stringify: false });
+	const bytes = encoder.encode(data) as Uint8Array;
+
+	return Bytes.toString(bytes, encoding);
+}
+
+export const bencodec = { decode, encode, encodeToBytes, encodeToString };
 export default bencodec;
